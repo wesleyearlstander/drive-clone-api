@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("path");
-const { auth } = require('express-openid-connect');
+const { auth, requiresAuth } = require('express-openid-connect');
 
 const app = express();
 const port = process.env.PORT || "8000";
@@ -28,6 +28,10 @@ app.get('/logout', (req, res) => {
     req.logout();
     res.redirect("/");
 });
+
+app.get('/profile', requiresAuth(), (req, res) => {
+    res.send(JSON.stringify(req.oidc.user));
+  });
 
 // req.isAuthenticated is provided from the auth router
 app.get('/', (req, res) => {
