@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+
+</head>
+
+<body class="container">
+
+    <header>
+
+    </header>
+
+    <main>
+
+
+        <%- include('../partials/osiloscopecode'); %>
+
+            <%- include( '../partials/presetsconfigs'); %>
+
+                <canvas id="audio_visual" height="500" width="1000" onload="auth"></canvas>
+
+
+                <form>
+                    <input name="x" id="x" type="text">
+                    <input name="y" id="y" type="text">
+                    <input name="z" id="z" type="text">
+                    <input name="t" id="t" type="text">
+                    <input name="j" id="j" type="text">
+                    <input name="k" id="k" type="text">
+                </form>
+
+                <input type="button" onclick="SetConfigName()" value="test this">
+                <input list="wavetypes " name="wavetypes " id="wavetype " onchange="setaudiosource()">
+                <datalist id="wavetypes ">
+          <option value="sine "></option>
+          <option value="saw "></option>
+          <option value="triangle "></option>
+          <option value="square "></option>
+        </datalist>
+                <form action="https://photosynthesynth.herokuapp.com/logout">
+                    <input type="submit" value="Sign Out" />
+                </form>
+
+    </main>
+
+    <footer>
+
+    </footer>
+
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js "></script>
+<script>
+    var sel = document.getElementById("configs");
+
+    function GetSelectedConfig() {
+        var ConfigsSelect = document.getElementById("configs");
+        return JSON.parse(ConfigsSelect.value);
+    }
+
+
+
+    function SetConfig() {
+        var strUser = GetSelectedConfig()
+        setthis(strUser);
+    }
+
+    // TODO will be replaced
+    // with the correct config data thingy
+    function setthis(obj) {
+        var inputx = document.getElementById("x").value = obj.x;
+        var inputy = document.getElementById("y").value = obj.y;
+        var inputz = document.getElementById("z").value = obj.z;
+        var inputt = document.getElementById("t").value = obj.t;
+        var inputj = document.getElementById("j").value = obj.j;
+        var inputk = document.getElementById("k").value = obj.k;
+    }
+
+    function getthis() {
+        return {
+            "x": document.getElementById("x").value,
+            "y": document.getElementById("y").value,
+            "z": document.getElementById("z").value,
+            "t": document.getElementById("t").value,
+            "j": document.getElementById("j").value,
+            "k": document.getElementById("k").value
+        }
+    }
+
+    function UpdateConfigData() {
+        $.put("http://localhost:4000/UpdateRecord/", {
+                ID: GetSelectedConfig().ID,
+                JSONDATA: JSON.stringify(getthis())
+            },
+            function(data, status) {
+                if (data.status == 200) {
+
+                }
+            })
+    }
+</script>
+<script>
+    function setaudiosource() {
+        var wavetype = document.getElementById("wavetype ");
+        var audioplayer = document.getElementById("myAudio ");
+        var strUser = wavetype.value;
+        switch (strUser) {
+            case 'saw':
+                audioplayer.src = 'SawToothWave100hz.mp3';
+                break;
+            case 'sine':
+                audioplayer.src = 'SineWave100hz.mp3';
+                break;
+            case 'square':
+                audioplayer.src = 'SquareWave500hz.mp3';
+                break;
+            case 'triangle':
+                audioplayer.src = 'TraingleWave100hz.mp3';
+                break;
+        }
+    }
+</script>
+<script src="/osiloscopecode.js "></script>
+<script src="/presetsconfigs.js "></script>
+
+</html>
+
+</html>
