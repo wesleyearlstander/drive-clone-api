@@ -1,0 +1,23 @@
+{
+  "name": "drive-clone-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wesleyearlstander/drive-clone-api.git"
+  },
+  "keywords": [
+    "drive",
+    "clone"
+  ],
+  "author": "Wesley, Governor, Stephen ...",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wesleyearlstander/drive-clone-api/issues"
+  },
+  "homepage": "https://github.com/wesleyearlstander/drive-clone-api#readme"
+}
