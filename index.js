@@ -19,7 +19,7 @@ const config = {
     authRequired: false,
     auth0Logout: true,
     secret: 'a long, randomly-generated string stored in env',
-    baseURL: (os.hostname().indexOf("local") > -1) ? 'http://localhost:8000' : "https://drive-clone-api.herokuapp.com/",
+    baseURL: (os.hostname().indexOf("local") > -1) ? 'http://localhost:8000' : "https://drive-clone-api.herokuapp.com:8000",
     clientID: '5yUSJVHVOXqHWd2rZoaqTDYZGACxFnGP',
     issuerBaseURL: 'https://cmt-dev.eu.auth0.com'
 };
