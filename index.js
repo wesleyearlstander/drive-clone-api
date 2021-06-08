@@ -3,10 +3,13 @@ const cors = require("cors");
 const { auth } = require('express-openid-connect');
 const swaggerUI = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
-const authRouter = require("./routes/auth");
 const os = require('os');
 const request = require("request");
 const dotenv = require('dotenv');
+const jwt = require('express-jwt');
+const jwks = require('jwks-rsa');
+
+const userRouter = require("./routes/user");
 
 dotenv.config();
 
@@ -19,7 +22,12 @@ const options = {
     body: `{"client_id":"${process.env.CLIENT_ID}","client_secret":"${process.env.CLIENT_SECRET}","audience":"https://drive-clone-api.herokuapp.com/","grant_type":"client_credentials"}`
 };
 
-request(options, function (error, response, body) { if (error) throw new Error(error); console.log(body); });
+request(options, function (error, response, body) {
+    if (error)
+        throw new Error(error);
+        console.log(body);
+    }
+);
 
 const port = process.env.port || "8000";
 
@@ -40,26 +48,29 @@ const swaggerOptions = {
 	apis: ["./routes/*.js"],
 };
 
+const jwtCheck = jwt({
+    secret: jwks.expressJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: 'https://cmt-dev.eu.auth0.com/.well-known/jwks.json'
+  }),
+  audience: 'https://drive-clone-api.herokuapp.com/',
+  issuer: 'https://cmt-dev.eu.auth0.com/',
+  algorithms: ['RS256'],
+  credentialsRequired: false
+});
+
 const specs = swaggerJsDoc(swaggerOptions);
 
 const app = express();
 
+app.use(cors());
+app.use(jwtCheck);
+
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
 
-const config = {
-    authRequired: false,
-    auth0Logout: true,
-    secret: 'a long, randomly-generated string stored in env',
-    baseURL: (os.hostname().indexOf("local") > -1) ? 'http://localhost:8000' : "https://drive-clone-api.herokuapp.com",
-    clientID: '5yUSJVHVOXqHWd2rZoaqTDYZGACxFnGP',
-    issuerBaseURL: 'https://cmt-dev.eu.auth0.com'
-};
-
-app.use(auth(config));
-app.use(cors());
-
-
-app.use('/auth', authRouter);
+app.use('/user', userRouter);
 
 app.listen(port, () => {
     console.log(`Listening to requests on http://localhost:${port}`);
