@@ -26,8 +26,11 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "dot-env": "0.0.1",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-openid-connect": "^2.4.0",
+    "request": "^2.88.2",
     "swagger-jsdoc": "^6.1.0",
     "swagger-ui-express": "^4.1.6"
   }
