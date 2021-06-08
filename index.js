@@ -4,7 +4,7 @@ const { auth, requiresAuth } = require('express-openid-connect');
 
 var os = require('os');
 const app = express();
-const port = process.env.port || "8000";
+const port = process.env.PORT || 8000;
 
 const config = {
     authRequired: false,
