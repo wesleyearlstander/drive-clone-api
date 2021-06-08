@@ -1,8 +1,9 @@
 const express = require("express");
-const path = require("path");
-const { auth, requiresAuth } = require('express-openid-connect');
+const cors = require("cors");
+const { auth } = require('express-openid-connect');
+const authRouter = require("./routes/auth");
+const os = require('os');
 
-var os = require('os');
 const app = express();
 const port = process.env.port || "8000";
 
@@ -16,28 +17,10 @@ const config = {
 };
 
 app.use(auth(config));
+app.use(cors());
 
-// app.get("/", (req, res) => {
-//     res.status(200).send("Found the API");
-// });
 
-app.get('/callback', (req, res) => {
-    res.redirect("/synth");
-});
-
-app.get('/logout', (req, res) => {
-    req.logout();
-    res.redirect("/");
-});
-
-app.get('/profile', requiresAuth(), (req, res) => {
-    res.send(JSON.stringify(req.oidc.user));
-  });
-
-// req.isAuthenticated is provided from the auth router
-app.get('/', (req, res) => {
-    res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
-});
+app.use('/auth', authRouter);
 
 app.listen(port, () => {
     console.log(`Listening to requests on http://localhost:${port}`);
