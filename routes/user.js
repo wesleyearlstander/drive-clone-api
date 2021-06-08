@@ -52,6 +52,8 @@ router.get('/login', (req, res) => {
  * @swagger
  * /user/logout:
  *   get:
+ *     security:
+ *       - bearerAuth: []
  *     summary: user logout
  *     tags: [user]
  *     responses:
@@ -68,6 +70,8 @@ router.get('/logout', (req, res) => {
  * @swagger
  * /user/profile:
  *   get:
+ *     security:
+ *       - bearerAuth: []
  *     summary: returns user profile
  *     tags: [user]
  *     responses:

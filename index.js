@@ -32,21 +32,34 @@ request(options, function (error, response, body) {
 const port = process.env.port || "8000";
 
 const swaggerOptions = {
-	definition: {
-		openapi: "3.0.0",
-		info: {
-			title: "Library API",
-			version: "1.0.0",
-			description: "A simple Express Library API",
-		},
-		servers: [
-			{
-				url: "http://localhost:8000",
-			},
-		],
-	},
-	apis: ["./routes/*.js"],
-};
+    swaggerDefinition: {
+      openapi: "3.0.0",
+      info: {
+        title: "Library API",
+        version: "1.0.0",
+        description: "A simple Express Library API",
+      },
+      basePath: '/',
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          }
+        }
+      },
+      servers: [
+        {
+            url: (os.hostname().indexOf("local") > -1) ? `http://localhost:${port}` : "https://drive-clone-api.herokuapp.com",
+        },
+      ],
+      security: [{
+        bearerAuth: []
+      }]
+    },
+    apis: ["./routes/*.js"],
+  };
 
 const jwtCheck = jwt({
     secret: jwks.expressJwtSecret({
