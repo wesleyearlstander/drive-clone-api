@@ -3,23 +3,14 @@ const path = require("path");
 const { auth, requiresAuth } = require('express-openid-connect');
 
 var os = require('os');
-var database_uri;
-
-if(os.hostname().indexOf("local") > -1)
-  // Server running on Localhost
-  database_uri = "mongodb://localhost/database";
-else
-  // Server running on remote server
-  database_uri = "mongodb://remotehost/database";
-
 const app = express();
-const port = "8000";
+const port = process.env.port || "8000";
 
 const config = {
     authRequired: false,
     auth0Logout: true,
     secret: 'a long, randomly-generated string stored in env',
-    baseURL: (os.hostname().indexOf("local") > -1) ? 'http://localhost:8000' : "https://drive-clone-api.herokuapp.com:8000",
+    baseURL: (os.hostname().indexOf("local") > -1) ? 'http://localhost:8000' : "https://drive-clone-api.herokuapp.com",
     clientID: '5yUSJVHVOXqHWd2rZoaqTDYZGACxFnGP',
     issuerBaseURL: 'https://cmt-dev.eu.auth0.com'
 };
