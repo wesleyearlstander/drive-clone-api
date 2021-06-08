@@ -51,7 +51,10 @@ const swaggerOptions = {
       },
       servers: [
         {
-            url: (os.hostname().indexOf("local") > -1) ? `http://localhost:${port}` : "https://drive-clone-api.herokuapp.com",
+            url: `http://localhost:${port}`
+        },
+        {
+            url: "https://drive-clone-api.herokuapp.com",
         },
       ],
       security: [{
