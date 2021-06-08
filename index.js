@@ -22,7 +22,7 @@ app.use(auth(config));
 // });
 
 app.get('/callback', (req, res) => {
-    res.redirect("/synth");
+    res.redirect("/");
 });
 
 app.get('/logout', (req, res) => {
