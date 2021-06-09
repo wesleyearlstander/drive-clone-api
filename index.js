@@ -81,12 +81,25 @@ const specs = swaggerJsDoc(swaggerOptions);
 
 const app = express();
 
+const config = {
+    authRequired: false,
+    auth0Logout: true,
+    baseURL: 'http://localhost:3000',
+    clientID: 'L8aw294Sw8k5LVXJ3GKacHSKuefcZJTS',
+    issuerBaseURL: 'https://cmt-dev.eu.auth0.com',
+    secret: 'LONG_RANDOM_STRING'
+};
+
+// auth router attaches /login, /logout, and /callback routes to the baseURL
+app.use(auth(config));
+  
+
 app.use(cors());
 app.use(jwtCheck);
 
 app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(specs));
 
-app.use('/user', userRouter);
+// app.use('/', userRouter);
 
 app.listen(port, () => {
     console.log(`Listening to requests on http://localhost:${port}`);
