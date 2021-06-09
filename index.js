@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { auth } = require('express-openid-connect');
+const { auth, requiresAuth } = require('express-openid-connect');
 const swaggerUI = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
 const os = require('os');
@@ -82,24 +82,34 @@ const specs = swaggerJsDoc(swaggerOptions);
 const app = express();
 
 const config = {
-    authRequired: false,
+    authRequired: true,
     auth0Logout: true,
-    baseURL: 'http://localhost:3000',
-    clientID: 'L8aw294Sw8k5LVXJ3GKacHSKuefcZJTS',
+    baseURL: 'http://localhost:8000',
+    clientID: '5yUSJVHVOXqHWd2rZoaqTDYZGACxFnGP',
     issuerBaseURL: 'https://cmt-dev.eu.auth0.com',
-    secret: 'LONG_RANDOM_STRING'
+    secret: 'xZAJUZwzL14PCuSY3L_LSvr5lmMQytAcKPw_S2AHlanobyj_rH6TEvtOqgvhw2Vz'
 };
 
 // auth router attaches /login, /logout, and /callback routes to the baseURL
 app.use(auth(config));
   
+var corsOptions = {
+    origin: '*',
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(jwtCheck);
 
 app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(specs));
 
-// app.use('/', userRouter);
+app.get('/', (req, res) => {
+    res.redirect("/api/docs");
+});
+
+app.get('/profile', requiresAuth(), (req, res) => {
+    res.send(JSON.stringify(req.oidc.user));
+});
 
 app.listen(port, () => {
     console.log(`Listening to requests on http://localhost:${port}`);

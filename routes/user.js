@@ -30,7 +30,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /user/login:
+ * /login:
  *   get:
  *     summary: user login with userId and password
  *     tags: [user]
@@ -50,7 +50,7 @@ router.get('/login', (req, res) => {
 
 /**
  * @swagger
- * /user/logout:
+ * /logout:
  *   get:
  *     security:
  *       - bearerAuth: []
@@ -64,11 +64,12 @@ router.get('/login', (req, res) => {
  *
  */
 router.get('/logout', (req, res) => {
+    res.send("{}");
 });
 
 /**
  * @swagger
- * /user/profile:
+ * /profile:
  *   get:
  *     security:
  *       - bearerAuth: []
