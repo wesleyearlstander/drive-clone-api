@@ -72,7 +72,8 @@ router.get('/logout', (req, res) => {
  * /profile:
  *   get:
  *     security:
- *       - bearerAuth: []
+ *       - Auth0: 
+ *          - openid
  *     summary: returns user profile
  *     tags: [user]
  *     responses:

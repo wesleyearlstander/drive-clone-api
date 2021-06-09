@@ -19,7 +19,7 @@ const options = {
     headers: {
         'content-type': 'application/json'
     },
-    body: `{"client_id":"${process.env.CLIENT_ID}","client_secret":"${process.env.CLIENT_SECRET}","audience":"https://drive-clone-api.herokuapp.com/","grant_type":"client_credentials"}`
+    body: `{"client_id":"${process.env.CLIENT_ID}","client_secret":"${process.env.CLIENT_SECRET}","audience":"https://drive-clone-api.herokuapp.com/","grant_type":"client_credentials"}`,
 };
 
 request(options, function (error, response, body) {
@@ -57,12 +57,32 @@ const swaggerOptions = {
             url: "https://drive-clone-api.herokuapp.com",
         },
       ],
-      security: [{
-        bearerAuth: []
-      }]
-    },
+        security: [
+          {
+            auth0: [
+              "openid",
+              "admin:org",
+              "admin:public_key"
+            ]
+          }
+        ],
+        securityDefinitions: {
+          auth0: {
+            type: "oauth2",
+            scopes: {
+              openid: "Grants access to user_id",
+              "admin:org": "Fully manage organization, teams, and memberships.",
+              "admin:public_key": "Fully manage public keys."
+            },
+            flow: "accessCode",
+            authorizationUrl: "https://test.eu.auth0.com/authorize",
+            tokenUrl: "https://test.eu.auth0.com/userinfo",
+            "x-token-validation-url": "https://test.eu.auth0.com/userinfo"
+          }
+        },
     apis: ["./routes/*.js"],
-  };
+  }
+};
 
 const jwtCheck = jwt({
     secret: jwks.expressJwtSecret({
