@@ -84,10 +84,10 @@ const app = express();
 const config = {
     authRequired: true,
     auth0Logout: true,
-    baseURL: 'http://localhost:8000',
-    clientID: '5yUSJVHVOXqHWd2rZoaqTDYZGACxFnGP',
-    issuerBaseURL: 'https://cmt-dev.eu.auth0.com',
-    secret: 'xZAJUZwzL14PCuSY3L_LSvr5lmMQytAcKPw_S2AHlanobyj_rH6TEvtOqgvhw2Vz'
+    baseURL: process.env.AUTH0_BASEURL,
+    clientID: process.env.AUTH0_CLIENTID,
+    issuerBaseURL: process.env.AUTH0_ISSUERBASEURL,
+    secret: process.env.AUTH0_SECRET
 };
 
 // auth router attaches /login, /logout, and /callback routes to the baseURL
