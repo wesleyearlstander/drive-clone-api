@@ -29,7 +29,7 @@ request(options, function (error, response, body) {
     }
 );
 
-const port = process.env.port || "8000";
+const port = process.env.PORT || "8000";
 
 const swaggerOptions = {
     swaggerDefinition: {
@@ -84,7 +84,7 @@ const app = express();
 app.use(cors());
 app.use(jwtCheck);
 
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
+app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(specs));
 
 app.use('/user', userRouter);
 
