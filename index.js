@@ -9,6 +9,22 @@ const dotenv = require('dotenv');
 const jwt = require('express-jwt');
 const jwks = require('jwks-rsa');
 
+const {MongoClient} = require('mongodb');
+const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@<your-cluster-url>/test?retryWrites=true&w=majority`;
+const client = new MongoClient(uri);
+
+async function listDatabases(client){
+  databasesList = await client.db().admin().listDatabases();
+
+  console.log("Databases:");
+  databasesList.databases.forEach(db => console.log(` - ${db.name}`));
+};
+
+
+async function connect() {
+
+}
+
 const userRouter = require("./routes/user");
 
 dotenv.config();
@@ -126,6 +142,18 @@ app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(specs));
 app.get('/', (req, res) => {
     res.redirect("/api/docs");
 });
+
+app.get('/database', (req, res) => {
+  try {
+    await client.connect();
+    await client.db().collection("FileTree").insertOne({});
+    res.send("successfully inserted to database");
+  } catch (e) {
+      console.error(e);
+  } finally {
+    await client.close();
+  }
+})
 
 app.get('/profile', requiresAuth(), (req, res) => {
     res.send(JSON.stringify(req.oidc.user));
