@@ -1,6 +1,6 @@
-const express = require("express");
+const express = require('express');
 const fileRouter = express.Router();
-const { upload } = require("../controllers/file.controller");
+const { upload } = require('../controllers/file.controller');
 
 // TODO: Mohammed
 fileRouter.post('/upload/file', upload);
