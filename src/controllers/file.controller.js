@@ -1,12 +1,16 @@
 const file = require('../models/file.model');
 const folder = require('../models/folder.model')
 
-const upload = (req, res, next) => {
+const upload = (req, res) => {
   // TODO
-  return res.status(200).send('');
+  if (req.params.fileId === null) {
+    return res.status(400).send({
+      message: 'Bad request, file id was missing'
+    })
+  }
 }
 
 
 module.exports = {
   upload
-}
+};

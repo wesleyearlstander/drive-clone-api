@@ -24,51 +24,9 @@ const router = express.Router();
  *   description: User APIs
  */
 
-
-
-
 /**
  * @swagger
- * /login:
- *   get:
- *     summary: user login with userId and password
- *     tags: [user]
- *     responses:
- *       200:
- *         description: login success
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/jwt'
- *       401:
- *         description: login failed
- *
- */
-router.get('/login', (req, res) => {
-});
-
-/**
- * @swagger
- * /logout:
- *   get:
- *     security:
- *       - bearerAuth: []
- *     summary: user logout
- *     tags: [user]
- *     responses:
- *       200:
- *         description: logout success
- *       500:
- *         description: logout failed
- *
- */
-router.get('/logout', (req, res) => {
-    res.send("{}");
-});
-
-/**
- * @swagger
- * /profile:
+ * /user/profile:
  *   get:
  *     security:
  *       - Auth0: 
