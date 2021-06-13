@@ -1,7 +1,7 @@
 const emptyFolder =
 {
-  "folders": undefined,
-  "files": undefined
+  'folders': undefined,
+  'files': undefined
 };
 
 exports.module = emptyFolder;

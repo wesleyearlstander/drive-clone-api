@@ -1,6 +1,5 @@
 async function findUserTreeById(client, _id) {
   let res = await client.db('drive-clone-db').collection('userFileTrees').findOne({_id});
-  console.log("res in here:", res);
   return res;
 }
 
