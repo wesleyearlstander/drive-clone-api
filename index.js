@@ -9,7 +9,9 @@ const jwtCheck = require('./src/middleware/jwt');
 const auth0Config = require('./src/config/auth0');
 const userRouter = require('./src/routes/user.routes');
 const dirRouter = require('./src/routes/directory.routes');
-const { findUserTreeById } = require('.src/controllers/directory.controller');
+const { findUserTreeById, createFileTreeForUser } = require('./src/controllers/directory.controller');
+const dbExecute = require('./src/config/database');
+const emptyFolder = require('./src/config/emptyFolder');
 
 const corsOptions = {
     origin: '*',
@@ -24,7 +26,13 @@ app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpecs));
 app.use('/user', userRouter);
 app.use('/directory', dirRouter);
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
+
+  let result = await dbExecute(findUserTreeById, [req.oidc.user.sub]).catch(console.error);
+
+  if (!result) {
+    await dbExecute(createFileTreeForUser, [req.oidc.user.sub, emptyFolder]);
+  }
   res.redirect('/api/docs');
 });
 
