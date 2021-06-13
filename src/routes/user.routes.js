@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
 /**
@@ -29,7 +29,7 @@ const router = express.Router();
  * /user/profile:
  *   get:
  *     security:
- *       - Auth0: 
+ *       - Auth0:
  *          - openid
  *     summary: returns user profile
  *     tags: [user]
