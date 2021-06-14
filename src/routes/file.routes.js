@@ -1,22 +1,22 @@
-const express = require("express");
+const express = require('express');
 const fileRouter = express.Router();
-const { upload } = require("../controllers/file.controller");
-const { StatusCodes } = require("http-status-codes");
+const { upload } = require('../controllers/file.controller');
+const { StatusCodes } = require('http-status-codes');
 
 // TODO: Mohammed
-fileRouter.post("/upload/file", upload);
+fileRouter.post('/upload/file', upload);
 
 // TODO: Mohammed
-fileRouter.get("/download", (req, res) => {});
+fileRouter.get('/download', (req, res) => {});
 
-fileRouter.put("/move", (req, res) => {
+fileRouter.put('/move', (req, res) => {
   const file = req.query.file;
   const directory = req.query.directory;
 
   if (!file) {
     res.status = StatusCodes.NOT_FOUND;
     res.json({
-      message: "File Not Found",
+      message: 'File Not Found',
     });
   }
 
@@ -26,7 +26,7 @@ fileRouter.put("/move", (req, res) => {
   });
 });
 
-fileRouter.patch("/rename", (req, res) => {
+fileRouter.patch('/rename', (req, res) => {
   const file = req.query.file;
   const name = req.query.name;
 
@@ -50,7 +50,7 @@ fileRouter.patch("/rename", (req, res) => {
   });
 });
 
-fileRouter.delete("/delete", (req, res) => {
+fileRouter.delete('/delete', (req, res) => {
   const file = req.query.file;
   
   if (!file) {
