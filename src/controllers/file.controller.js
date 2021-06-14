@@ -1,12 +1,18 @@
-const file = require('../models/file.model');
-const folder = require('../models/folder.model')
+const { StatusCodes } = require('http-status-codes');
 
 const upload = (req, res) => {
-  // TODO
-  if (req.params.fileId === null) {
-    return res.status(400).send({
-      message: 'Bad request, file id was missing'
-    })
+  const fileId = req.params.fileId;
+
+  if (!fileId) {
+    res.status = StatusCodes.BAD_REQUEST;
+    res.json({
+      message: 'BadRequest'
+    });
+  } else {
+    res.status = StatusCodes.OK;
+    res.json({
+      message: `File ID: ${fileId} uploaded`
+    });
   }
 }
 

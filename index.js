@@ -12,10 +12,11 @@ const dirRouter = require('./src/routes/directory.routes');
 const { findUserTreeById, createFileTreeForUser } = require('./src/controllers/directory.controller');
 const dbExecute = require('./src/config/database');
 const emptyFolder = require('./src/config/emptyFolder');
+const { StatusCodes } = require('http-status-codes');
 
 const corsOptions = {
     origin: '*',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+    optionsSuccessStatus: StatusCodes.OK // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
 app.use(cors(corsOptions));
