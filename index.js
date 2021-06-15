@@ -20,8 +20,8 @@ app.use(cors(corsOptions));
 app.use(auth(auth0Config));
 app.use(jwtCheck);
 app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(swaggerSpecs));
-app.use('/user', userRouter);
-app.use('/directory', dirRouter);
+app.use('/v1/user', userRouter);
+app.use('/v1/directory', dirRouter);
 
 app.get('/', (req, res) => {
   res.redirect("/api/docs");
