@@ -1,24 +1,67 @@
-const express = require("express");
-const FileRouter = express.Router();
-const { upload } = require("../controllers/file.controller");
+const express = require('express');
+const fileRouter = express.Router();
+const { upload } = require('../controllers/file.controller');
+const { StatusCodes } = require('http-status-codes');
 
 // TODO: Mohammed
 FileRouter.post('/upload/file', upload);
 
 // TODO: Mohammed
-FileRouter.get('/download', (req, res) => {
+fileRouter.get('/download', (req, res) => {});
+
+fileRouter.put('/move', (req, res) => {
+  const file = req.query.file;
+  const directory = req.query.directory;
+
+  if (!file) {
+    res.status = StatusCodes.NOT_FOUND;
+    res.json({
+      message: 'File Not Found',
+    });
+  }
+
+  res.status = StatusCodes.OK;
+  res.json({
+    message: `${file} has been moved to ${directory}`,
+  });
 });
 
-// TODO: Governor
-FileRouter.put('/move', (req, res) => {
+fileRouter.patch('/rename', (req, res) => {
+  const file = req.query.file;
+  const name = req.query.name;
+
+  if (!file) {
+    res.status = StatusCodes.NOT_FOUND;
+    res.json({
+      message: `File: ${file} not found`,
+    });
+
+    if (!name) {
+      res.status = StatusCodes.BAD_REQUEST;
+      res.json({
+        message: 'Please provide new file name',
+      });
+    }
+  }
+
+  res.status = StatusCodes.OK;
+  res.json({
+    message: `File ${file} renamed to ${name}`
+  });
 });
 
-// TODO: Governor
-FileRouter.patch('/rename', (req, res) => {
-});
+fileRouter.delete('/delete', (req, res) => {
+  const file = req.query.file;
+  
+  if (!file) {
+    res.status = StatusCodes.NOT_FOUND;
+    res.json({
+      message: `File: ${file} not found`
+    });
+  }
+  
+  res.status = StatusCodes.NO_CONTENT;
+  res.send();
+})
 
-// TODO: Governor
-FileRouter.delete('/delete', (req, res) => {
-});
-
-module.exports = FileRouter;
+module.exports = fileRouter;

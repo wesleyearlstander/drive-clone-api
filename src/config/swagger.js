@@ -1,13 +1,13 @@
-const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerJsDoc = require('swagger-jsdoc');
 
 // TODO: Update info object
 const swaggerOptions = {
   swaggerDefinition: {
-    openapi: "3.0.0",
+    openapi: '3.0.0',
     info: {
-      title: "Library API",
-      version: "1.0.0",
-      description: "A simple Express Library API",
+      title: 'Library API',
+      version: '1.0.0',
+      description: 'A simple Express Library API',
     },
     basePath: '/',
     components: {
@@ -24,34 +24,34 @@ const swaggerOptions = {
           url: `http://localhost:${process.env.PORT || 8000}`
       },
       {
-          url: "https://drive-clone-api.herokuapp.com",
+          url: 'https://drive-clone-api.herokuapp.com',
       },
     ],
       security: [
         {
           auth0: [
-            "openid",
-            "admin:org",
-            "admin:public_key"
+            'openid',
+            'admin:org',
+            'admin:public_key'
           ]
         }
       ],
       securityDefinitions: {
         auth0: {
-          type: "oauth2",
+          type: 'oauth2',
           scopes: {
-            openid: "Grants access to user_id",
-            "admin:org": "Fully manage organization, teams, and memberships.",
-            "admin:public_key": "Fully manage public keys."
+            openid: 'Grants access to user_id',
+            'admin:org': 'Fully manage organization, teams, and memberships.',
+            'admin:public_key': 'Fully manage public keys.'
           },
-          flow: "accessCode",
-          authorizationUrl: "https://test.eu.auth0.com/authorize",
-          tokenUrl: "https://test.eu.auth0.com/userinfo",
-          "x-token-validation-url": "https://test.eu.auth0.com/userinfo"
+          flow: 'accessCode',
+          authorizationUrl: 'https://test.eu.auth0.com/authorize',
+          tokenUrl: 'https://test.eu.auth0.com/userinfo',
+          'x-token-validation-url': 'https://test.eu.auth0.com/userinfo'
         }
       },
     },
-  apis: ["./src/routes/*.js"],
+  apis: ['./src/routes/*.js'],
 };
 
 const swaggerSpecs = swaggerJsDoc(swaggerOptions);

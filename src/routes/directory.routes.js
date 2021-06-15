@@ -1,6 +1,6 @@
-const express = require("express");
+const express = require('express');
 const DirectoryRouter = express.Router();
-const { FolderController } = require("../controllers");
+const { FolderController } = require('../controllers');
 
 /**
  * @swagger

@@ -1,4 +1,4 @@
-const DriveItem = require("./drive-item.model");
+const DriveItem = require('./drive-item.model');
 
 class File extends DriveItem {
   constructor(name, extension) {
