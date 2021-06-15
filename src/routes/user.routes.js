@@ -27,7 +27,7 @@ const { StatusCodes } = require('http-status-codes');
 
 /**
  * @swagger
- * /user/profile:
+ * /v1/user/profile:
  *   get:
  *     security:
  *       - Auth0:

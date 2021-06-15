@@ -1,7 +1,7 @@
-const FileController = require('./file.controller');
-const FolderController = require('./folder.controller');
+const fileController = require('./file.controller');
+const folderController = require('./folder.controller');
 
 module.exports = {
-  FolderController,
-  FileController
+  folderController,
+  fileController
 }

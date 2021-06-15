@@ -1,6 +1,7 @@
 const express = require('express');
 const DirectoryRouter = express.Router();
-const { FolderController } = require('../controllers');
+const { folderController } = require('../controllers');
+const buildDrive = require('../middleware/buildDrive');
 
 /**
  * @swagger
@@ -71,7 +72,7 @@ const { FolderController } = require('../controllers');
 
 /**
  * @swagger
- * /directory/:id:
+ * /v1/directory/:id:
  *   get:
  *     summary: Returns the list of all children in the directory
  *     responses:
@@ -96,12 +97,12 @@ const { FolderController } = require('../controllers');
  */
 DirectoryRouter.get(
   '/:id',
-  FolderController.getChildren
+  folderController.getChildren
 );
 
 /**
  * @swagger
- * /directory:
+ * /v1/directory:
  *   post:
  *     summary: Creates a new folder in the specified directory
  *     requestBody:
@@ -109,7 +110,7 @@ DirectoryRouter.get(
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Folder' 
+ *             type: object
  *     responses:
  *       204:
  *         description: Folder was created
@@ -121,23 +122,24 @@ DirectoryRouter.get(
  *         $ref: '#/components/responses/NotFound'
  */
 DirectoryRouter.post(
-  '/:id',
-  FolderController.make
+  '/',
+  [buildDrive],
+  folderController.make
 );
 
 DirectoryRouter.delete(
   '/:id',
-  FolderController.remove
+  folderController.remove
 );
 
 DirectoryRouter.put(
   '/:id',
-  FolderController.move
+  folderController.move
 );
 
 DirectoryRouter.patch(
   '/:id',
-  FolderController.rename
+  folderController.rename
 );
 
 module.exports = DirectoryRouter;
