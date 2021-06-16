@@ -95,10 +95,7 @@ const buildDrive = require('../middleware/buildDrive');
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-DirectoryRouter.get(
-  '/:id',
-  folderController.getChildren
-);
+DirectoryRouter.get('/:id', folderController.getChildren);
 
 /**
  * @swagger
@@ -121,25 +118,12 @@ DirectoryRouter.get(
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-DirectoryRouter.post(
-  '/',
-  [buildDrive],
-  folderController.make
-);
+DirectoryRouter.post('/', [buildDrive], folderController.make);
 
-DirectoryRouter.delete(
-  '/:id',
-  folderController.remove
-);
+DirectoryRouter.delete('/:id', folderController.remove);
 
-DirectoryRouter.put(
-  '/:id',
-  folderController.move
-);
+DirectoryRouter.put('/:id', folderController.move);
 
-DirectoryRouter.patch(
-  '/:id',
-  folderController.rename
-);
+DirectoryRouter.patch('/:id', folderController.rename);
 
 module.exports = DirectoryRouter;

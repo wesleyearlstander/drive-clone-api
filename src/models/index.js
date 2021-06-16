@@ -5,5 +5,5 @@ const Folder = require('./folder.model');
 module.exports = {
   DriveItem,
   File,
-  Folder
-}
+  Folder,
+};

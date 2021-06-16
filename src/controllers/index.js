@@ -3,5 +3,5 @@ const folderController = require('./folder.controller');
 
 module.exports = {
   folderController,
-  fileController
-}
+  fileController,
+};

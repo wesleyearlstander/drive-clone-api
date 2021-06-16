@@ -5,5 +5,5 @@ const UserRouter = require('./user.routes');
 module.exports = {
   DirectoryRouter,
   FileRouter,
-  UserRouter
-}
+  UserRouter,
+};

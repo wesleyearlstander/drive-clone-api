@@ -1,7 +1,7 @@
 const DriveItem = require('./drive-item.model');
 
 class File extends DriveItem {
-  constructor({name, extension, location}) {
+  constructor({ name, extension, location }) {
     super(name);
     this.extension = extension;
     this.location = location;
@@ -15,10 +15,9 @@ class File extends DriveItem {
     return {
       name: this.name,
       extension: this.extension,
-      location: this.location
-    }
+      location: this.location,
+    };
   }
-
 }
 
 module.exports = File;

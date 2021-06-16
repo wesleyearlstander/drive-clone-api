@@ -46,22 +46,22 @@ fileRouter.patch('/rename', (req, res) => {
 
   res.status = StatusCodes.OK;
   res.json({
-    message: `File ${file} renamed to ${name}`
+    message: `File ${file} renamed to ${name}`,
   });
 });
 
 fileRouter.delete('/delete', (req, res) => {
   const file = req.query.file;
-  
+
   if (!file) {
     res.status = StatusCodes.NOT_FOUND;
     res.json({
-      message: `File: ${file} not found`
+      message: `File: ${file} not found`,
     });
   }
-  
+
   res.status = StatusCodes.NO_CONTENT;
   res.send();
-})
+});
 
 module.exports = fileRouter;
