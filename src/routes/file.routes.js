@@ -3,8 +3,35 @@ const fileRouter = express.Router();
 const { upload } = require('../controllers/file.controller');
 const { StatusCodes } = require('http-status-codes');
 
-// TODO: Mohammed
-fileRouter.post('/upload/file', upload);
+/**
+ * @swagger
+ * tags:
+ *   name: file
+ *   description: File APIs
+ */
+
+/**
+ * @swagger
+ * /file/upload:
+ *   x-swagger-route-controller: bus_api
+ *   post:
+ *     operationId: upload
+ *     summary: uploads a file
+ *     consumes:
+ *       - multipart/form-data
+ *     parameters:
+ *       - in: formData
+ *         name: imageFile
+ *         type: file
+ *         description: The file to upload.
+ *     tags: [file]
+ *     responses:
+ *       200:
+ *         description: request success
+ *       500:
+ *         description: failed to get user profile
+ */
+fileRouter.post('/upload', upload);
 
 // TODO: Mohammed
 fileRouter.get('/download', (req, res) => {});
@@ -52,14 +79,14 @@ fileRouter.patch('/rename', (req, res) => {
 
 fileRouter.delete('/delete', (req, res) => {
   const file = req.query.file;
-  
+
   if (!file) {
     res.status = StatusCodes.NOT_FOUND;
     res.json({
       message: `File: ${file} not found`
     });
   }
-  
+
   res.status = StatusCodes.NO_CONTENT;
   res.send();
 })

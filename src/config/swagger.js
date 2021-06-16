@@ -2,7 +2,7 @@ const swaggerJsDoc = require('swagger-jsdoc');
 
 const swaggerOptions = {
   swaggerDefinition: {
-    openapi: '3.0.0',
+    swagger: '2.0',
     info: {
       title: 'Library API',
       version: '1.0.0',
