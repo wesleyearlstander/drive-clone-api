@@ -1,6 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
 const path = require('path');
-const fs = require("fs");
+const fs = require('fs');
 const { uploadFile, downloadFile } = require('../config/database');
 
 const publicDir = `${path.dirname(require.main.filename)}/public/`;
