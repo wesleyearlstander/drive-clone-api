@@ -6,17 +6,16 @@ const upload = (req, res) => {
   if (!fileId) {
     res.status = StatusCodes.BAD_REQUEST;
     res.json({
-      message: 'BadRequest'
+      message: 'BadRequest',
     });
   } else {
     res.status = StatusCodes.OK;
     res.json({
-      message: `File ID: ${fileId} uploaded`
+      message: `File ID: ${fileId} uploaded`,
     });
   }
-}
-
+};
 
 module.exports = {
-  upload
+  upload,
 };

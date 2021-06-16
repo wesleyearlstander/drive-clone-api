@@ -11,7 +11,7 @@ const { StatusCodes } = require('http-status-codes');
  */
 
 // TODO: Mohammed
-fileRouter.post('/upload/file', upload);
+FileRouter.post('/upload/file', upload);
 
 // TODO: Mohammed
 fileRouter.get('/download', (req, res) => {});
@@ -88,7 +88,7 @@ fileRouter.patch('/rename', (req, res) => {
 
   res.status = StatusCodes.OK;
   res.json({
-    message: `File ${file} renamed to ${name}`
+    message: `File ${file} renamed to ${name}`,
   });
 });
 /**
@@ -108,16 +108,16 @@ fileRouter.patch('/rename', (req, res) => {
  */
 fileRouter.delete('/delete', (req, res) => {
   const file = req.query.file;
-  
+
   if (!file) {
     res.status = StatusCodes.NOT_FOUND;
     res.json({
-      message: `File: ${file} not found`
+      message: `File: ${file} not found`,
     });
   }
-  
+
   res.status = StatusCodes.NO_CONTENT;
   res.send();
-})
+});
 
 module.exports = fileRouter;
