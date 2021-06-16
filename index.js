@@ -31,7 +31,6 @@ app.use(cors(corsOptions));
 app.use(express.json())
 app.use(auth(auth0Config));
 
-app.use(jwtCheck);
 app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpecs));
 app.use('/v1/user', userRouter);
 app.use('/v1/file', fileRouter);
