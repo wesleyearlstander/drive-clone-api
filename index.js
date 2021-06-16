@@ -23,6 +23,7 @@ const corsOptions = {
     optionsSuccessStatus: StatusCodes.OK // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
+app.use(express.json());
 app.use(fileUpload());
 
 app.use(cors(corsOptions));

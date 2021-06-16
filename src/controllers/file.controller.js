@@ -25,7 +25,17 @@ const upload = (req, res) => {
 
 };
 
+const download = (req, res) => {
+
+  const fileName = req.body.fileName;
+  const file = appDir + '/public/' + fileName;
+
+  res.download(file);
+
+};
+
 
 module.exports = {
-  upload
+  upload,
+  download
 };

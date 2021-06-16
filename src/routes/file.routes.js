@@ -1,6 +1,6 @@
 const express = require('express');
 const fileRouter = express.Router();
-const { upload } = require('../controllers/file.controller');
+const { upload, download } = require('../controllers/file.controller');
 const { StatusCodes } = require('http-status-codes');
 
 /**
@@ -27,14 +27,41 @@ const { StatusCodes } = require('http-status-codes');
  *     tags: [file]
  *     responses:
  *       200:
- *         description: request success
+ *         description: upload success
  *       500:
- *         description: failed to get user profile
+ *         description: upload failed
  */
 fileRouter.post('/upload', upload);
 
-// TODO: Mohammed
-fileRouter.get('/download', (req, res) => {});
+/**
+ * @swagger
+ * /file/download:
+ *   post:
+ *     summary: downloads requested file
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: user
+ *         description: The user to create.
+ *         schema:
+ *           type: object
+ *           required:
+ *             - userName
+ *           properties:
+ *             fileName:
+ *               type: string
+ *             filePath:
+ *               type: string
+ *     tags: [file]
+ *     responses:
+ *       200:
+ *         description: download success
+ *       500:
+ *         description: download failed
+ *
+ */
+fileRouter.post('/download', download);
 
 fileRouter.put('/move', (req, res) => {
   const file = req.query.file;
