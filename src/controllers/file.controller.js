@@ -1,13 +1,17 @@
 const { StatusCodes } = require('http-status-codes');
 const path = require('path');
-const appDir = path.dirname(require.main.filename);
+const fs = require("fs");
+const { uploadFile, downloadFile } = require('../config/database');
+
+const publicDir = `${path.dirname(require.main.filename)}/public/`;
 
 const upload = (req, res) => {
 
-  var startup_image = req.files.imageFile;
-  var fileName = startup_image.name;
+  const startup_image = req.files.imageFile;
+  const fileName = startup_image.name;
+  const tempName = Math.random().toString(36).substring(2) + fileName;
 
-  startup_image.mv(appDir + '/public/' + fileName, function (err) {
+  startup_image.mv(`${publicDir}${tempName}`, function (err) {
     if (err) {
       res.status = StatusCodes.BAD_REQUEST;
       res.json({
@@ -23,16 +27,46 @@ const upload = (req, res) => {
     }
   });
 
-};
-
-const download = (req, res) => {
-
-  const fileName = req.body.fileName;
-  const file = appDir + '/public/' + fileName;
-
-  res.download(file);
+  uploadFile(tempName, fileName);
 
 };
+
+async function download(req, res) {
+
+  const fileId = req.body.fileId;
+
+  const dbRes = await downloadFile(fileId);
+
+  if (dbRes) {
+
+    let noFile = true;
+    while (noFile) {
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        noFile = fs.statSync(`${publicDir}${dbRes.fileName}`).size/1024;
+        break;
+      } catch (e) {
+        if (e.code === 'ENOENT') {
+        } else {
+          console.log(e);
+          break;
+        }
+      }
+    }
+    let currentFileSizeInKB = fs.statSync(`${publicDir}${dbRes.fileName}`).size;
+    while (currentFileSizeInKB < dbRes.fileSize) {
+      currentFileSizeInKB = fs.statSync(`${publicDir}${dbRes.fileName}`).size;
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    res.download(`${publicDir}${dbRes.fileName}`);
+  } else {
+
+    res.status = StatusCodes.BAD_REQUEST;
+    res.json({
+      message: 'Error: Download Failed',
+    });
+  }
+}
 
 
 module.exports = {

@@ -15,7 +15,7 @@ const fileRouter = require('./src/routes/file.routes');
 const dirRouter = require('./src/routes/directory.routes');
 
 const { findUserTreeById, createFileTreeForUser } = require('./src/controllers/directory.controller');
-const dbExecute = require('./src/config/database');
+const { dbExecute } = require('./src/config/database');
 const emptyFolder = require('./src/config/emptyFolder');
 
 const corsOptions = {

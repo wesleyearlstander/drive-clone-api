@@ -46,10 +46,8 @@ fileRouter.post('/upload', upload);
  *         description: The user to create.
  *         schema:
  *           type: object
- *           required:
- *             - userName
  *           properties:
- *             fileName:
+ *             fileId:
  *               type: string
  *             filePath:
  *               type: string
