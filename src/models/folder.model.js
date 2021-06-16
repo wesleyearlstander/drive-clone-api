@@ -46,16 +46,63 @@ class Folder extends DriveItem {
     return found;
   }
 
-  add(path, DriveItem) {
+  add(path, driveItem) {
     const paths = path.split('/');
 
     return this.peformActionAtPath(
       paths,
-      (item, DriveItem) => {
-        item.iterator.add(DriveItem);
+      (item, driveItem) => {
+        item.iterator.add(driveItem);
       },
-      [DriveItem]
+      [driveItem]
     );
+  }
+
+  remove(path, driveItem) {
+    const paths = path.split('/');
+
+    return this.peformActionAtPath(
+      paths,
+      (item, driveItem) => {
+        item.iterator.remove(driveItem);
+      },
+      [driveItem]
+    );
+  }
+
+  rename(path, newName, driveItem) {
+    const paths = path.split('/');
+
+    return this.peformActionAtPath(
+      paths,
+      (item, newName, driveItem) => {
+        item.iterator.rename(newName, driveItem);
+      },
+      [newName, driveItem]
+    );
+  }
+
+  move(currentPath, newPath, driveItem) {
+    const paths = currentPath.split('/');
+    let existingDriveItem = null;
+
+    this.peformActionAtPath(
+      paths,
+      (item, driveItem) => {
+        existingDriveItem = item.iterator.getChild(driveItem);
+      },
+      [driveItem]
+    );
+
+    const added = this.add(newPath, existingDriveItem);
+
+    if (added) {
+      const removed = this.remove(currentPath, existingDriveItem);
+
+      return removed;
+    }
+
+    return added;
   }
 
   format() {
@@ -77,10 +124,6 @@ class Folder extends DriveItem {
     }
 
     return mongoDoc;
-  }
-
-  remove(DriveItem) {
-    this.children.splice(this.children.findIndex(DriveItem));
   }
 }
 

@@ -1,21 +1,15 @@
 const DriveItem = require('./drive-item.model');
 
 class File extends DriveItem {
-  constructor({ name, extension, location }) {
+  constructor({ name, _id }) {
     super(name);
-    this.extension = extension;
-    this.location = location;
-  }
-
-  getName() {
-    return `${this.name}.${this.extension}`;
+    this.id = _id;
   }
 
   format() {
     return {
       name: this.name,
-      extension: this.extension,
-      location: this.location,
+      _id: this._id,
     };
   }
 }

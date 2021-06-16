@@ -17,6 +17,30 @@ class Iterator {
     this.items.push(item);
   }
 
+  remove(item) {
+    this.items.splice(
+      this.items.findIndex((driveItem) => {
+        return driveItem.getName() === item.getName();
+      })
+    );
+  }
+
+  rename(newName, item) {
+    this.each((child) => {
+      if (child.getName() === item.getName()) {
+        child.name = newName;
+      }
+    });
+  }
+
+  getChild(item) {
+    const child = this.items.find((driveItem) => {
+      return driveItem.getName() === item.getName();
+    });
+
+    return child;
+  }
+
   hasNext() {
     return this.index <= this.items?.length;
   }
