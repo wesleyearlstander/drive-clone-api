@@ -33,7 +33,14 @@ const upload = (req, res) => {
 
 async function download(req, res) {
 
-  const fileId = req.body.fileId;
+  const fileId = req.body?.fileId;
+
+  if (!fileId) {
+    return res.status(400).send({
+      code: 400,
+      message: 'Missing fileId',
+    });
+  }
 
   const dbRes = await downloadFile(fileId);
 
