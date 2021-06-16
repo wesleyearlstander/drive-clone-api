@@ -4,22 +4,6 @@ const { StatusCodes } = require('http-status-codes');
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     jwt:
- *       type: object
- *       required:
- *         - accessToken
- *       properties:
- *         accessToken:
- *           type: string
- *           description: jwtAccessToken
- *       example:
- *         accessToken: eygakdfjakafda
- */
-
-/**
- * @swagger
  * tags:
  *   name: user
  *   description: User APIs
@@ -29,9 +13,6 @@ const { StatusCodes } = require('http-status-codes');
  * @swagger
  * /v1/user/profile:
  *   get:
- *     security:
- *       - Auth0:
- *          - openid
  *     summary: returns user profile
  *     tags: [user]
  *     responses:
