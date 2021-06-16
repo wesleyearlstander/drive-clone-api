@@ -40,15 +40,10 @@ exports.make = async (req, res) => {
     });
   }
 
-  // const mongoDoc = req.drive.normalise();
-
-  //  Do some operation on the db with mongoDoc
-  const responseObject = {
-    drive: null,
-  } 
-  responseObject.drive = req.drive;
+  const mongoDoc = req.drive.format();
+  console.log(mongoDoc);
   
-  return res.status(200).send(responseObject);
+  return res.status(200).send(mongoDoc);
 
 };
 

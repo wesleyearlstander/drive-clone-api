@@ -10,11 +10,11 @@ class Folder extends DriveItem {
   map(directory) {
     const children = [];
     
-    directory.files?.forEach(file => {
+    directory.files?.forEach?.(file => {
       children.push(new File(file))
     })
 
-    directory.folders?.forEach(folder => {
+    directory.folders?.forEach?.(folder => {
       children.push(new Folder(folder))
     })
 
@@ -56,6 +56,27 @@ class Folder extends DriveItem {
       [DriveItem]
     );
 
+  }
+
+  format() {
+
+    const mongoDoc = {
+      files: [],
+      folders: []
+    }
+    this.iterator.each(child => {
+      if (child?.getIterator?.() ?? false) {
+        mongoDoc.folders.push(child.format())
+      } else {
+        mongoDoc.files.push(child.format())
+      }
+    });
+    
+    if (this.name) {
+      mongoDoc.name = this.name;
+    }
+
+    return mongoDoc;
   }
 
   remove(DriveItem) {

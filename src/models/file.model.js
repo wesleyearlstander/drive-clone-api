@@ -11,6 +11,14 @@ class File extends DriveItem {
     return `${this.name}.${this.extension}`;
   }
 
+  format() {
+    return {
+      name: this.name,
+      extension: this.extension,
+      location: this.location
+    }
+  }
+
 }
 
 module.exports = File;
