@@ -12,7 +12,7 @@ const { StatusCodes } = require('http-status-codes');
 
 /**
  * @swagger
- * /file/upload:
+ * /v1/file/upload:
  *   x-swagger-route-controller: bus_api
  *   post:
  *     operationId: upload
@@ -35,7 +35,7 @@ fileRouter.post('/upload', upload);
 
 /**
  * @swagger
- * /file/download:
+ * /v1/file/download:
  *   post:
  *     summary: downloads requested file
  *     consumes:
@@ -98,7 +98,7 @@ fileRouter.patch('/rename', (req, res) => {
 
   res.status = StatusCodes.OK;
   res.json({
-    message: `File ${file} renamed to ${name}`
+    message: `File ${file} renamed to ${name}`,
   });
 });
 
@@ -108,12 +108,12 @@ fileRouter.delete('/delete', (req, res) => {
   if (!file) {
     res.status = StatusCodes.NOT_FOUND;
     res.json({
-      message: `File: ${file} not found`
+      message: `File: ${file} not found`,
     });
   }
 
   res.status = StatusCodes.NO_CONTENT;
   res.send();
-})
+});
 
 module.exports = fileRouter;

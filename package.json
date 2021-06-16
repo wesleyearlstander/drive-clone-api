@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon ./index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "format": "prettier --write src/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -15,7 +16,7 @@
     "drive",
     "clone"
   ],
-  "author": "Wesley, Governor, Stephen ...",
+  "author": "Wesley, Governor, Steven ...",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/wesleyearlstander/drive-clone-api/issues"

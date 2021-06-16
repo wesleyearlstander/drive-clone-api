@@ -1,5 +1,6 @@
 const swaggerJsDoc = require('swagger-jsdoc');
 
+// TODO: Update info object
 const swaggerOptions = {
   swaggerDefinition: {
     swagger: '2.0',
@@ -11,21 +12,22 @@ const swaggerOptions = {
     basePath: '/',
     servers: [
       {
-          url: `http://localhost:${process.env.PORT || 8000}`
+        url: `http://localhost:${process.env.PORT || 8000}`,
       },
       {
-          url: 'https://drive-clone-api.herokuapp.com',
+        url: 'https://drive-clone-api.herokuapp.com',
       },
     ],
     security: [
       {
-        auth0: [
-          'openid',
-          'admin:org',
-          'admin:public_key'
-        ]
-      }
-    ]
+        auth0: ['openid', 'admin:org', 'admin:public_key'],
+      },
+    ],
+    security: [
+      {
+        auth0: ['openid', 'admin:org', 'admin:public_key'],
+      },
+    ],
   },
   apis: ['./src/routes/*.js'],
 };

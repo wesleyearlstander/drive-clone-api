@@ -73,8 +73,7 @@ async function download(req, res) {
       message: 'Error: Download Failed',
     });
   }
-}
-
+};
 
 module.exports = {
   upload,

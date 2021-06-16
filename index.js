@@ -28,11 +28,14 @@ app.use(fileUpload());
 
 app.use(cors(corsOptions));
 // auth router attaches /login, /logout, and /callback routes to the baseURL
+app.use(express.json())
 app.use(auth(auth0Config));
+
+app.use(jwtCheck);
 app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpecs));
-app.use('/user', userRouter);
-app.use('/file', fileRouter);
-app.use('/directory', dirRouter);
+app.use('/v1/user', userRouter);
+app.use('/v1/file', fileRouter);
+app.use('/v1/directory', dirRouter);
 
 app.get('/', async (req, res) => {
 

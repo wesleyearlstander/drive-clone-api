@@ -11,7 +11,7 @@ const { StatusCodes } = require('http-status-codes');
 
 /**
  * @swagger
- * /user/profile:
+ * /v1/user/profile:
  *   get:
  *     summary: returns user profile
  *     tags: [user]
@@ -23,15 +23,15 @@ const { StatusCodes } = require('http-status-codes');
  *
  */
 router.get('/profile', (req, res) => {
-    if (req.oidc.user) {
-        res.status = StatusCodes.OK;
-        res.json(req.oidc.user);
-    } else {
-        res.status = StatusCodes.UNAUTHORIZED;
-        res.json({
-            message: 'Unauthorized to perform action'
-        });
-    }
+  if (req.oidc.user) {
+    res.status = StatusCodes.OK;
+    res.json(req.oidc.user);
+  } else {
+    res.status = StatusCodes.UNAUTHORIZED;
+    res.json({
+      message: 'Unauthorized to perform action',
+    });
+  }
 });
 
 module.exports = router;
