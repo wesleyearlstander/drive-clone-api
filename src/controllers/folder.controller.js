@@ -1,5 +1,6 @@
 const dbExecute = require('../config/database');
-const folder = require('../models');
+const model = require('../models');
+const emptyFolder = require('../config/emptyFolder');
 
 exports.getChildren = (req, res) => {
   if (req.params?.folderId === null) {
@@ -11,8 +12,6 @@ exports.getChildren = (req, res) => {
 
 };
 
-
-
 exports.make = async (req, res) => {
   if (!req.body?.path) {
     return res.status(400).send({
@@ -21,14 +20,35 @@ exports.make = async (req, res) => {
     });
   }
 
+  if (!req.body?.name) {
+    return res.status(400).send({
+      code: 400,
+      message: 'Missing folder name'
+    });
+  }
+  
+  const response = req.drive.add(
+    req.body.path,
+    new model.Folder({
+      'name': req.body.name
+    })
+  );
 
-  // const paths = req.body.path.split('/');
+  if (!response) {
+    return res.status(404).send({
+      message: 'Folder did not exist'
+    });
+  }
 
-  return res.status(200).send(req.drive);
+  // const mongoDoc = req.drive.normalise();
 
-
-  // Does this path exist
-  // documents/secret
+  //  Do some operation on the db with mongoDoc
+  const responseObject = {
+    drive: null,
+  } 
+  responseObject.drive = req.drive;
+  
+  return res.status(200).send(responseObject);
 
 };
 
