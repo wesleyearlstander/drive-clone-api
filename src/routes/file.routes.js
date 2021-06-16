@@ -2,6 +2,10 @@ const express = require('express');
 const fileRouter = express.Router();
 const { upload } = require('../controllers/file.controller');
 const { StatusCodes } = require('http-status-codes');
+const model = require('../models');
+const { updateFileTreeForUser } = require('../controllers/directory.controller');
+const buildDrive = require('../middleware/buildDrive');
+const dbExecute = require('../config/database');
 
 /**
  * @swagger
@@ -11,14 +15,35 @@ const { StatusCodes } = require('http-status-codes');
  */
 
 // TODO: Mohammed
-FileRouter.post('/upload/file', upload);
+fileRouter.post('/upload/file', upload);
 
 // TODO: Mohammed
 fileRouter.get('/download', (req, res) => {});
 /**
  * @swagger
- * /files/move:
+ * /v1/files/move:
  *   put:
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *                currentPath:
+ *                    type: string
+ *                fileName:
+ *                    type: string
+ *                newPath:
+ *                    type: string
+ *             required:
+ *               - currentPath
+ *               - newPath
+ *               - fileName
+ *             example:
+ *               currentPath: /
+ *               newPath: /new
+ *               fileName: /
  *     summary: modifies users file structure
  *     tags: [files]
  *     responses:
@@ -30,32 +55,61 @@ fileRouter.get('/download', (req, res) => {});
  *          description: internal server error
  *
  */
-fileRouter.put('/move', (req, res) => {
+fileRouter.put('/move', [buildDrive], async (req, res) => {
   /**
-   * Get user identity
-   * Retrieve user file structure
    * Modify user file structure
    */
-  const user = req.oidc.accessToken;
-  console.log(user);
-  const file = req.query.file;
-  const directory = req.query.directory;
 
-  if (!file) {
-    res.status = StatusCodes.NOT_FOUND;
-    res.json({
-      message: 'File Not Found',
+  if (!req.body.currentPath) {
+    return res.status(400).send({
+      code: 400,
+      message: 'Missing folder current path',
     });
   }
 
-  res.status = StatusCodes.OK;
-  res.json({
-    message: `${file} has been moved to ${directory}`,
-  });
+  if (!req.body.newPath) {
+    return res.status(400).send({
+      code: 400,
+      message: 'Missing folder new path',
+    });
+  }
+
+  if (!req.body.fileName) {
+    return res.status(400).send({
+      code: 400,
+      message: 'Missing folder name',
+    });
+  }
+
+  const response = req.drive.move(
+    req.body.currentPath,
+    req.body.newPath,
+    new model.File({
+      name: req.body.fileName
+    })
+  );
+
+  if (!response) {
+    return res.status(404).send({
+      message: 'File or path did not exist',
+    });
+  }
+  
+  const mongoDoc = req.drive.format();
+
+  const updateFileTree = await dbExecute(updateFileTreeForUser, [
+    req.oidc.user.sub,
+    mongoDoc,
+  ]);
+
+  // TODO: check negative scenarios
+
+  res.status = StatusCodes.NO_CONTENT;
+  res.send();
 });
 /**
  * @swagger
- * /files/rename:
+ * /v1/files/rename:
  *   patch:
  *     summary: rename a file
  *     tags: [files]
@@ -93,7 +147,7 @@ fileRouter.patch('/rename', (req, res) => {
 });
 /**
  * @swagger
- * /files/delete:
+ * /v1/files/delete:
  *   delete:
  *     summary: rename a file
  *     tags: [files]
