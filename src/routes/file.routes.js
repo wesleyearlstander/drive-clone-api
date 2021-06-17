@@ -1,7 +1,20 @@
 const express = require('express');
 const fileRouter = express.Router();
-const { upload, download, deleteCallback } = require('../controllers');
-const { StatusCodes } = require('http-status-codes');
+const { buildDrive } = require('../middleware');
+const {
+  upload,
+  download,
+  deleteCallback,
+  moveFile,
+  renameFile
+} = require('../controllers');
+
+/**
+ * @swagger
+ * tags:
+ *   name: files
+ *   description: Files Endpoints
+ */
 
 /**
  * @swagger
@@ -61,73 +74,98 @@ fileRouter.post('/upload', upload);
  */
 fileRouter.post('/download', download);
 
-fileRouter.put('/move', (req, res) => {
-  const file = req.query.file;
-  const directory = req.query.directory;
+/**
+ * @swagger
+ * /v1/files/move:
+ *   put:
+ *     summary: move a file
+ *     consumes:
+ *     - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       required: true
+ *       schema:
+ *        type: object
+ *        properties:
+ *          currentPath:
+ *            type: string
+ *          newPath:
+ *            type: string
+ *          fileName:
+ *            type: string
+ *     tags: [files]
+ *     responses:
+ *       200:
+ *         description: file renamed successfully
+ *       404:
+ *         description: file not found
+ *       500:
+ *          description: internal server error
+ *
+ */
+fileRouter.put('/move', [buildDrive], moveFile);
 
-  if (!file) {
-    res.status = StatusCodes.NOT_FOUND;
-    res.json({
-      message: 'File Not Found',
-    });
-  }
-
-  res.status = StatusCodes.OK;
-  res.json({
-    message: `${file} has been moved to ${directory}`,
-  });
-});
-
-fileRouter.patch('/rename', (req, res) => {
-  const file = req.query.file;
-  const name = req.query.name;
-
-  if (!file) {
-    res.status = StatusCodes.NOT_FOUND;
-    res.json({
-      message: `File: ${file} not found`,
-    });
-
-    if (!name) {
-      res.status = StatusCodes.BAD_REQUEST;
-      res.json({
-        message: 'Please provide new file name',
-      });
-    }
-  }
-
-  res.status = StatusCodes.OK;
-  res.json({
-    message: `File ${file} renamed to ${name}`,
-  });
-});
+/**
+ * @swagger
+ * /v1/files/rename:
+ *   patch:
+ *     summary: rename a file
+ *     consumes:
+ *     - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       required: true
+ *       schema:
+ *        type: object
+ *        properties:
+ *          path:
+ *            type: string
+ *          currentName:
+ *            type: string
+ *          newName:
+ *            type: string
+ *     tags: [files]
+ *     responses:
+ *       200:
+ *         description: file renamed successfully
+ *       404:
+ *         description: file not found
+ *       500:
+ *          description: internal server error
+ *
+ */
+fileRouter.patch('/rename', [buildDrive], renameFile);
 
 /**
  * @swagger
  * /v1/files/delete:
  *   delete:
- *     summary: deletes specified file
+ *     summary: deletes a file
  *     consumes:
- *       - application/json
+ *     - application/json
  *     parameters:
- *       - in: body
- *         name: fileSpecifier
- *         description: specifies fileId at filePath to be deleted
- *         schema:
- *           type: object
- *           properties:
- *             fileId:
- *               type: string
- *             filePath:
- *               type: string
- *     tags: [file]
+ *     - name: body
+ *       in: body
+ *       required: true
+ *       schema:
+ *        type: object
+ *        properties:
+ *          path:
+ *            type: string
+ *          name:
+ *            type: string
+ *     tags: [files]
  *     responses:
- *       204:
- *         description: delete success
- *       400:
- *         description: delete failed
+ *       200:
+ *         description: file renamed successfully
+ *       404:
+ *         description: file not found
+ *       500:
+ *          description: internal server error
  *
  */
-fileRouter.delete('/delete', deleteCallback);
+fileRouter.delete('/delete', [buildDrive], deleteCallback);
 
 module.exports = fileRouter;

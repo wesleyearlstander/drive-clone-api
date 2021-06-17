@@ -6,7 +6,6 @@ const { StatusCodes } = require('http-status-codes');
 const express = require('express');
 const app = express();
 const port = process.env.PORT || '8000';
-
 const {
   auth0Config,
   swaggerSpecs,

@@ -140,12 +140,23 @@ async function createFileTreeForUser(client, sub, initialFileTree) {
 }
 
 async function updateFileTreeForUser(client, sub, updatedFileTree) {
-  const res = await client
-    .db('drive-clone-db')
-    .collection('userFileTrees')
-    .replaceOne({ _id: sub }, { module: updatedFileTree });
+  try {
+    await client
+      .db('drive-clone-db')
+      .collection('userFileTrees')
+      .replaceOne({ _id: sub }, { module: updatedFileTree });
 
-  return res;
+    return {
+      ok: true,
+      code: 204,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: err?.errmsg,
+      code: err?.code || 500,
+    };
+  }
 }
 
 module.exports = {
