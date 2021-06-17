@@ -3,9 +3,10 @@ const fileRouter = express.Router();
 const { upload, download } = require('../controllers');
 const { StatusCodes } = require('http-status-codes');
 const model = require('../models');
-const { updateFileTreeForUser } = require('../controllers/directory.controller');
+const { updateFileTreeForUser } = require('../controllers/folder.controller');
 const buildDrive = require('../middleware/buildDrive');
-const dbExecute = require('../config/database');
+const dbExecute = require('../services/db.service');
+const { moveFile, deleteFile, renameFile } = require('../controllers/file.controller');
 
 /**
  * @swagger
@@ -71,59 +72,26 @@ fileRouter.post('/upload', upload);
  *
  */
 fileRouter.post('/download', download);
-
-  if (!req.body.currentPath) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder current path',
-    });
-  }
-
-  if (!req.body.newPath) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder new path',
-    });
-  }
-
-  if (!req.body.fileName) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder name',
-    });
-  }
-
-  const response = req.drive.move(
-    req.body.currentPath,
-    req.body.newPath,
-    new model.File({
-      name: req.body.fileName
-    })
-  );
-
-  if (!response) {
-    return res.status(404).send({
-      message: 'File or path did not exist',
-    });
-  }
-  
-  const mongoDoc = req.drive.format();
-
-  const updateFileTree = await dbExecute(updateFileTreeForUser, [
-    req.oidc.user.sub,
-    mongoDoc,
-  ]);
-
-  // TODO: check negative scenarios
-
-  res.status = StatusCodes.NO_CONTENT;
-  res.send();
-});
 /**
  * @swagger
- * /v1/files/rename:
- *   patch:
- *     summary: rename a file
+ * /v1/files/move:
+ *   put:
+ *     summary: move a file
+ *     consumes:
+ *     - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       required: true
+ *       schema:
+ *        type: object
+ *        properties:
+ *          currentPath:
+ *            type: string
+ *          newPath:
+ *            type: string
+ *          fileName:
+ *            type: string
  *     tags: [files]
  *     responses:
  *       200:
@@ -134,56 +102,67 @@ fileRouter.post('/download', download);
  *          description: internal server error
  *
  */
-fileRouter.patch('/rename', (req, res) => {
-  const file = req.query.file;
-  const name = req.query.name;
+fileRouter.put('/move', [buildDrive], moveFile);
 
-  if (!file) {
-    res.status = StatusCodes.NOT_FOUND;
-    res.json({
-      message: `File: ${file} not found`,
-    });
-
-    if (!name) {
-      res.status = StatusCodes.BAD_REQUEST;
-      res.json({
-        message: 'Please provide new file name',
-      });
-    }
-  }
-
-  res.status = StatusCodes.OK;
-  res.json({
-    message: `File ${file} renamed to ${name}`,
-  });
-});
 /**
  * @swagger
- * /v1/files/delete:
- *   delete:
+ * /v1/files/rename:
+ *   patch:
  *     summary: rename a file
+ *     consumes:
+ *     - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       required: true
+ *       schema:
+ *        type: object
+ *        properties:
+ *          path:
+ *            type: string
+ *          currentName:
+ *            type: string
+ *          newName:
+ *            type: string
  *     tags: [files]
  *     responses:
  *       200:
- *         description: file deleted successfully
+ *         description: file renamed successfully
  *       404:
  *         description: file not found
  *       500:
  *          description: internal server error
  *
  */
-fileRouter.delete('/delete', (req, res) => {
-  const file = req.query.file;
-
-  if (!file) {
-    res.status = StatusCodes.NOT_FOUND;
-    res.json({
-      message: `File: ${file} not found`,
-    });
-  }
-
-  res.status = StatusCodes.NO_CONTENT;
-  res.send();
-});
+fileRouter.patch('/rename', [buildDrive], renameFile);
+/**
+ * @swagger
+ * /v1/files/delete:
+ *   delete:
+ *     summary: deletes a file
+ *     consumes:
+ *     - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       required: true
+ *       schema:
+ *        type: object
+ *        properties:
+ *          path:
+ *            type: string
+ *          name:
+ *            type: string
+ *     tags: [files]
+ *     responses:
+ *       200:
+ *         description: file renamed successfully
+ *       404:
+ *         description: file not found
+ *       500:
+ *          description: internal server error
+ *
+ */
+fileRouter.delete('/delete', [buildDrive], deleteFile);
 
 module.exports = fileRouter;
