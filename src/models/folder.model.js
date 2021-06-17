@@ -75,6 +75,48 @@ class Folder extends DriveItem {
     );
   }
 
+  getChildFileIds() {
+    const childrenIds = [];
+    this.iterator.each((child) => {
+      if (child?.getIterator?.() ?? false) {
+        const ids = child?.getChildFileIds();
+        ids?.forEach?.((id) => {
+          childrenIds.push(id);
+        });
+      } else {
+        childrenIds.push(child._id);
+      }
+    });
+    return childrenIds;
+  }
+
+  getDescendantFileIds(path, driveItem) {
+    const paths = path.split('/');
+
+    return this.peformActionAtPath(
+      paths,
+      (item, driveItem) => {
+        const folderToBeDeleted = item.iterator.getChild(driveItem);
+        if (!folderToBeDeleted) {
+          return {
+            ok: false,
+            code: 404,
+            error: {
+              message: 'Folder does not exist',
+            },
+          };
+        }
+        const childrenIds = folderToBeDeleted.getChildFileIds();
+        return {
+          ok: true,
+          code: 204,
+          ids: childrenIds,
+        };
+      },
+      [driveItem]
+    );
+  }
+
   remove(path, driveItem) {
     const paths = path.split('/');
 
@@ -148,6 +190,36 @@ class Folder extends DriveItem {
     }
 
     return added;
+  }
+
+  getChildren(path, driveItem) {
+    const paths = path.split('/');
+
+    return this.peformActionAtPath(
+      paths,
+      (item, driveItem) => {
+        const children = [];
+        const folderToList = item.iterator.getChild(driveItem);
+        if (!folderToList) {
+          return {
+            ok: false,
+            code: 404,
+            error: {
+              message: 'Requested folder does not exist',
+            },
+          };
+        }
+        folderToList.iterator.each((child) => {
+          children.push(child.format());
+        });
+        return {
+          ok: true,
+          code: 200,
+          children: children,
+        };
+      },
+      [driveItem]
+    );
   }
 
   format() {
