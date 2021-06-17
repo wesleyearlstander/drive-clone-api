@@ -90,21 +90,28 @@ exports.removeFolder = async (req, res) => {
       errors: response.errors,
     });
   }
+  const path = req.body.path;
+  const driveItem = new model.Folder({
+    name: req.body.name,
+  });
+  // TODO: Remove any children file objects from db
+  response = req.drive.getDescendantFileIds(path, driveItem);
 
-  response = req.drive.remove(
-    req.body.path,
-    new model.Folder({
-      name: req.body.name,
-    })
-  );
+  if (!response.ok) {
+    return res.status(response.code).send(response.error);
+  }
+
+  await response.ids?.forEach((id) => {
+    dbExecute(deleteFile, [id]);
+  });
+
+  response = req.drive.remove(path, driveItem);
 
   if (!response.ok) {
     return res.status(response.code).send({
       errors: [response.error],
     });
   }
-
-  // TODO: Remove any children file objects from db
 
   const mongoDoc = req.drive.format();
 

@@ -3,7 +3,7 @@ const DriveItem = require('./drive-item.model');
 class File extends DriveItem {
   constructor({ name, _id }) {
     super(name);
-    this.id = _id;
+    this._id = _id;
   }
 
   format() {

@@ -75,6 +75,48 @@ class Folder extends DriveItem {
     );
   }
 
+  getChildFileIds() {
+    const childrenIds = [];
+    this.iterator.each((child) => {
+      if (child?.getIterator?.() ?? false) {
+        const ids = child?.getChildFileIds();
+        ids?.forEach?.((id) => {
+          childrenIds.push(id);
+        });
+      } else {
+        childrenIds.push(child._id);
+      }
+    });
+    return childrenIds;
+  }
+
+  getDescendantFileIds(path, driveItem) {
+    const paths = path.split('/');
+
+    return this.peformActionAtPath(
+      paths,
+      (item, driveItem) => {
+        const folderToBeDeleted = item.iterator.getChild(driveItem);
+        if (!folderToBeDeleted) {
+          return {
+            ok: false,
+            code: 404,
+            error: {
+              message: 'Folder does not exist',
+            },
+          };
+        }
+        const childrenIds = folderToBeDeleted.getChildFileIds();
+        return {
+          ok: true,
+          code: 204,
+          ids: childrenIds,
+        };
+      },
+      [driveItem]
+    );
+  }
+
   remove(path, driveItem) {
     const paths = path.split('/');
 
