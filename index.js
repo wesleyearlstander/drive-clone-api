@@ -6,17 +6,6 @@ const { StatusCodes } = require('http-status-codes');
 const express = require('express');
 const app = express();
 const port = process.env.PORT || '8000';
-<<<<<<< HEAD
-const auth0Config = require('./src/config/auth0');
-const userRouter = require('./src/routes/user.routes');
-const fileRouter = require('./src/routes/file.routes');
-const dirRouter = require('./src/routes/directory.routes');
-const { findUserTreeById, createFileTreeForUser } = require('./src/controllers/directory.controller');
-const dbExecute = require('./src/config/database');
-const emptyFolder = require('./src/config/emptyFolder');
-const { StatusCodes } = require('http-status-codes');
-=======
-
 const {
   auth0Config,
   swaggerSpecs,
@@ -32,7 +21,6 @@ const {
   createFileTreeForUser,
   dbExecute,
 } = require('./src/services');
->>>>>>> origin
 
 const corsOptions = {
   origin: '*',
