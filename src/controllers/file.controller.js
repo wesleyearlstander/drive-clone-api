@@ -132,7 +132,6 @@ const download = async (req, res) => {
       return res.status(response.code).send({errors: response.errors});
     }
 
-    res.status(response.code);
     return res.download(`${publicFolder}${fileName}`);
   }
 

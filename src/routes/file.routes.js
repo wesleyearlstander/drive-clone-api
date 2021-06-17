@@ -64,7 +64,7 @@ fileRouter.post('/upload', [buildDrive], upload);
  *               type: string
  *     tags: [file]
  *     responses:
- *       204:
+ *       200:
  *         description: download success
  *       400:
  *         description: download failed
