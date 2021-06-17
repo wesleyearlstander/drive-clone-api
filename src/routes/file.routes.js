@@ -1,11 +1,7 @@
 const express = require('express');
 const fileRouter = express.Router();
 const { upload, download } = require('../controllers');
-const { StatusCodes } = require('http-status-codes');
-const model = require('../models');
-const { updateFileTreeForUser } = require('../controllers/folder.controller');
 const buildDrive = require('../middleware/buildDrive');
-const dbExecute = require('../services/db.service');
 const { moveFile, deleteFile, renameFile } = require('../controllers/file.controller');
 
 /**
