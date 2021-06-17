@@ -1,7 +1,7 @@
 const { StatusCodes } = require('http-status-codes');
 const path = require('path');
 const fs = require('fs');
-const { uploadFile, downloadFile, deleteFile } = require('../services');
+const { dbExecute, uploadFile, downloadFile, deleteFile } = require('../services');
 
 const publicDir = `${path.dirname(require.main.filename)}/public/`;
 
@@ -75,23 +75,49 @@ async function download(req, res) {
   }
 }
 
-const deleteCallback = (req, res) => {
+const deleteCallback = async (req, res) => {
+
+  let response = {
+    ok: false,
+    errors: [],
+    code: 400,
+  };
 
   const fileId = req.body?.fileId;
+  const filePath = req.body?.filePath;
 
   if (!fileId) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing fileId',
+    response.errors.push({
+      message: 'Request body is missing fileId'
     });
   }
 
-  deleteFile(fileId);
+  if (!filePath) {
+    response.errors.push({
+      message: 'Request body is missing filePath'
+    });
+  }
 
-  return res.status(200).send({
-    code: 200,
-    message: 'File Deleted',
-  });
+  if (filePath && fileId) {
+    let dbRes = await dbExecute(deleteFile, [fileId]);
+
+    response.code = dbRes.code;
+
+    if (dbRes.ok) {
+      response.ok = true;
+    } else {
+
+      response.errors.push({
+        message: dbRes.message
+      });
+    }
+  }
+
+  if (response.ok) {
+    return res.status(response.code);
+  } else {
+    return res.status(response.code).send(response);
+  }
 };
 
 module.exports = {

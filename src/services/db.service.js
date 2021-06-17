@@ -33,17 +33,25 @@ async function findFileById(client, _id) {
   return res;
 }
 
-async function deleteFile(fileId) {
-  const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@drive-clone-cluster.cuxyh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-  const client = new MongoClient(uri, { useUnifiedTopology: true });
-  client.connect(function (error, client) {
-    assert.ifError(error);
+async function deleteFile(client, fileId) {
+  let db = client.db('drive-clone-db');
+  const bucket = new GridFSBucket(db);
 
-    const db = client.db('drive-clone-db');
+  try {
+    await bucket.delete(new ObjectID(fileId));
+  } catch (err) {
 
-    const bucket = new GridFSBucket(db);
-    bucket.delete(new ObjectID(fileId));
-  });
+    return {
+      ok: false,
+      code: 400,
+      message: err.message
+    };
+  }
+
+  return {
+    ok: true,
+    code: 204
+  };
 }
 
 async function uploadFile(tempName, fileName) {
