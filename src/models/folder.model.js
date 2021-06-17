@@ -58,8 +58,10 @@ class Folder extends DriveItem {
         if (item.iterator.getChild(driveItem)) {
           return {
             ok: false,
-            error:
-              'Item in current directory with given name already exists',
+            error: {
+              message:
+                'Item in current directory with given name already exists',
+            },
             code: 422,
           };
         }
