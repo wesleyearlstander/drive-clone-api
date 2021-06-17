@@ -41,19 +41,15 @@ const { buildDrive } = require('../middleware');
  *     required:
  *     - name
  *   Error:
- *     title: Error
- *     example:
- *       code: '400'
- *       message: Missing folder id
  *     type: object
  *     properties:
- *       code:
- *         type: string
- *       message:
- *         type: string
- *     required:
- *     - code
- *     - message
+ *       errors:
+ *         type: array
+ *         items:
+ *           type: object
+ *           properties:
+ *             message:
+ *               type: string
  *   MakeFolderObject:
  *     title: MakeFolderObject
  *     example:
@@ -106,33 +102,6 @@ const { buildDrive } = require('../middleware');
  *     - newName
  */
 
-// /**
-//  * @swagger
-//  * /v1/folders/:id:
-//  *   get:
-//  *     summary: Returns the list of all children in the directory
-//  *     responses:
-//  *       200:
-//  *         description: The list of all items in the directory
-//  *         content:
-//  *           application/json:
-//  *             schema:
-//  *               type: array
-//  *               items:
-//  *                 anyOf:
-//  *                   - $ref: '#/components/schemas/File'
-//  *                   - $ref: '#/components/schemas/Folder'
-//  *       204:
-//  *         description: Directory is empty
-//  *       400:
-//  *         $ref: '#/components/responses/BadRequest'
-//  *       403:
-//  *         $ref: '#/components/responses/Forbidden'
-//  *       404:
-//  *         $ref: '#/components/responses/NotFound'
-//  */
-// folderRouter.get('/:id', folderController.getChildren);
-
 /**
  * @swagger
  * /v1/folders:
@@ -148,7 +117,7 @@ const { buildDrive } = require('../middleware');
  *         $ref: '#/definitions/MakeFolderObject'
  *     tags: [folder]
  *     responses:
- *       '204':
+ *       '201':
  *         description: Folder was created
  *       '400':
  *         description: The request was malformed
@@ -156,15 +125,13 @@ const { buildDrive } = require('../middleware');
  *           $ref: '#/definitions/Error'
  *         examples:
  *           application/json:
- *             code: '400'
- *             message: Missing folder id
+ *             message: Request body is missing folder's path
  *       '403':
  *         description: User does not have permission to perform requested operation
  *         schema:
  *           $ref: '#/definitions/Error'
  *         examples:
  *           application/json:
- *             code: '403'
  *             message: User has insufficient privileges to perform requested action
  *       '404':
  *         description: The resource was not found
@@ -172,8 +139,14 @@ const { buildDrive } = require('../middleware');
  *           $ref: '#/definitions/Error'
  *         examples:
  *           application/json:
- *             code: '404'
- *             message: Resource was not found
+ *             message: Path or item does not exist
+ *       '422':
+ *         description: The request was not malformed but there was a semantic issue
+ *         schema:
+ *           $ref: '#/definitions/Error'
+ *         examples:
+ *           application/json:
+ *             message: Item in current directory with given name already exists
  */
 folderRouter.post('/', [buildDrive], makeFolder);
 /**
@@ -199,8 +172,7 @@ folderRouter.post('/', [buildDrive], makeFolder);
  *           $ref: '#/definitions/Error'
  *         examples:
  *           application/json:
- *             code: '400'
- *             message: Missing folder id
+ *             message: Request body is missing folder's path
  *       '403':
  *         description: User does not have permission to perform requested operation
  *         schema:
@@ -209,14 +181,6 @@ folderRouter.post('/', [buildDrive], makeFolder);
  *           application/json:
  *             code: '403'
  *             message: User has insufficient privileges to perform requested action
- *       '404':
- *         description: The resource was not found
- *         schema:
- *           $ref: '#/definitions/Error'
- *         examples:
- *           application/json:
- *             code: '404'
- *             message: Resource was not found
  */
 folderRouter.delete('/', [buildDrive], removeFolder);
 /**
@@ -234,7 +198,7 @@ folderRouter.delete('/', [buildDrive], removeFolder);
  *         $ref: '#/definitions/MoveFolderObject'
  *     tags: [folder]
  *     responses:
- *       '204':
+ *       '201':
  *         description: Folder was moved
  *       '400':
  *         description: The request was malformed
@@ -242,15 +206,13 @@ folderRouter.delete('/', [buildDrive], removeFolder);
  *           $ref: '#/definitions/Error'
  *         examples:
  *           application/json:
- *             code: '400'
- *             message: Missing folder id
+ *             message: Request body is missing folder's current path
  *       '403':
  *         description: User does not have permission to perform requested operation
  *         schema:
  *           $ref: '#/definitions/Error'
  *         examples:
  *           application/json:
- *             code: '403'
  *             message: User has insufficient privileges to perform requested action
  *       '404':
  *         description: The resource was not found
@@ -258,8 +220,7 @@ folderRouter.delete('/', [buildDrive], removeFolder);
  *           $ref: '#/definitions/Error'
  *         examples:
  *           application/json:
- *             code: '404'
- *             message: Resource was not found
+ *             message: Requested drive item does not exist
  */
 folderRouter.put('/', [buildDrive], moveFolder);
 /**
@@ -278,15 +239,14 @@ folderRouter.put('/', [buildDrive], moveFolder);
  *     tags: [folder]
  *     responses:
  *       '204':
- *         description: Folder was moved
+ *         description: Folder was renamed
  *       '400':
  *         description: The request was malformed
  *         schema:
  *           $ref: '#/definitions/Error'
  *         examples:
  *           application/json:
- *             code: '400'
- *             message: Missing folder id
+ *             message: Request body is missing folder's path
  *       '403':
  *         description: User does not have permission to perform requested operation
  *         schema:
@@ -302,7 +262,14 @@ folderRouter.put('/', [buildDrive], moveFolder);
  *         examples:
  *           application/json:
  *             code: '404'
- *             message: Resource was not found
+ *             message: Path or item does not exist
+ *       '422':
+ *         description: The request was not malformed but there was a semantic issue
+ *         schema:
+ *           $ref: '#/definitions/Error'
+ *         examples:
+ *           application/json:
+ *             message: Item in current directory with given name already exists
  */
 folderRouter.patch('/', [buildDrive], renameFolder);
 
