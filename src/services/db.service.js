@@ -46,7 +46,7 @@ async function deleteFile(client, fileId) {
     return {
       ok: false,
       code: 400,
-      message: err.message
+      errors: err.message
     };
   }
 
@@ -64,20 +64,21 @@ async function uploadFile(client, tempName, fileName) {
     const readStream = fs.createReadStream(`${publicFolder}${tempName}`);
     const uploadStream = bucket.openUploadStream(fileName);
 
-    await util.promisify(stream.pipeline)(readStream, uploadStream);
+    let res = await util.promisify(stream.pipeline)(readStream, uploadStream);
+
+    return {
+      ok: true,
+      code: 204,
+      _id: uploadStream.id
+    };
   } catch (err) {
 
     return {
       ok: false,
-      code: 400,
-      message: err.message
+      code: 401,
+      errors: err.message
     };
   }
-
-  return {
-    ok: true,
-    code: 204
-  };
 }
 
 async function downloadFile(client, fileId) {
@@ -108,7 +109,7 @@ async function downloadFile(client, fileId) {
         return {
           ok: false,
           code: 400,
-          message: err.message
+          errors: err.message
         };
       }
     }
@@ -117,7 +118,7 @@ async function downloadFile(client, fileId) {
     return {
       ok: false,
       code: 400,
-      message: err.message
+      errors: err.message
     };
   }
 }

@@ -30,6 +30,11 @@ const {
  *         name: imageFile
  *         type: file
  *         description: The file to upload.
+ *       - in: formData
+ *         name: path
+ *         type: string
+ *         required: true
+ *         description: specify path to upload file
  *     tags: [file]
  *     responses:
  *       204:
@@ -37,7 +42,7 @@ const {
  *       400:
  *         description: upload failed
  */
-fileRouter.post('/upload', upload);
+fileRouter.post('/upload', [buildDrive], upload);
 
 /**
  * @swagger
@@ -148,6 +153,8 @@ fileRouter.patch('/rename', [buildDrive], renameFile);
  *          path:
  *            type: string
  *          name:
+ *            type: string
+ *          fileId:
  *            type: string
  *     tags: [file]
  *     responses:
