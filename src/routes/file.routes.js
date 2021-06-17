@@ -58,19 +58,19 @@ fileRouter.post('/upload', [buildDrive], upload);
  *         schema:
  *           type: object
  *           properties:
- *             fileId:
+ *             path:
  *               type: string
- *             filePath:
+ *             name:
  *               type: string
  *     tags: [file]
  *     responses:
- *       204:
+ *       200:
  *         description: download success
  *       400:
  *         description: download failed
  *
  */
-fileRouter.post('/download', download);
+fileRouter.post('/download', [buildDrive], download);
 
 /**
  * @swagger
