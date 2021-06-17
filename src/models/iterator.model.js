@@ -25,15 +25,18 @@ class Iterator {
     );
   }
 
-  rename(newName, item) {
+  rename(newDriveItem, item) {
     this.each((child) => {
       if (child.getName() === item.getName()) {
-        child.name = newName;
+        child.name = newDriveItem.name;
       }
     });
   }
 
   getChild(item) {
+    if (!this.hasNext()) {
+      return;
+    }
     const child = this.items.find((driveItem) => {
       return driveItem.getName() === item.getName();
     });
