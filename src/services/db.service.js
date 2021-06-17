@@ -1,10 +1,12 @@
 const dotenv = require('dotenv');
 const assert = require('assert');
+const util = require('util');
+const stream = require('stream');
 const fs = require('fs');
 const path = require('path');
 const { MongoClient, GridFSBucket, ObjectID } = require('mongodb');
 
-const appDir = path.dirname(require.main.filename);
+const publicFolder = `${path.dirname(require.main.filename)}/public/`;
 
 dotenv.config();
 
@@ -54,25 +56,28 @@ async function deleteFile(client, fileId) {
   };
 }
 
-async function uploadFile(tempName, fileName) {
-  const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@drive-clone-cluster.cuxyh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-  const client = new MongoClient(uri, { useUnifiedTopology: true });
-  client.connect(function (error, client) {
-    assert.ifError(error);
+async function uploadFile(client, tempName, fileName) {
+  const db = client.db('drive-clone-db');
+  const bucket = new GridFSBucket(db);
 
-    const db = client.db('drive-clone-db');
+  try {
+    const readStream = fs.createReadStream(`${publicFolder}${tempName}`);
+    const uploadStream = bucket.openUploadStream(fileName);
 
-    const bucket = new GridFSBucket(db);
+    await util.promisify(stream.pipeline)(readStream, uploadStream);
+  } catch (err) {
 
-    fs.createReadStream(appDir + '/public/' + tempName)
-      .pipe(bucket.openUploadStream(fileName))
-      .on('error', function (error) {
-        assert.ifError(error);
-      })
-      .on('finish', function (res) {
-        console.log('done!');
-      });
-  });
+    return {
+      ok: false,
+      code: 400,
+      message: err.message
+    };
+  }
+
+  return {
+    ok: true,
+    code: 204
+  };
 }
 
 async function downloadFile(fileId) {
@@ -98,7 +103,7 @@ async function downloadFile(fileId) {
 
       bucket
         .openDownloadStream(new ObjectID(fileId))
-        .pipe(fs.createWriteStream(appDir + '/public/' + fileName))
+        .pipe(fs.createWriteStream(`${publicFolder}${fileName}`))
         .on('error', function (error) {
           assert.ifError(error);
         })

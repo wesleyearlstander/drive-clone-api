@@ -3,30 +3,49 @@ const path = require('path');
 const fs = require('fs');
 const { dbExecute, uploadFile, downloadFile, deleteFile } = require('../services');
 
-const publicDir = `${path.dirname(require.main.filename)}/public/`;
+const publicFolder = `${path.dirname(require.main.filename)}/public/`;
 
-const upload = (req, res) => {
+const upload = async (req, res) => {
+
+  let response = {
+    ok: false,
+    errors: [],
+    code: 400,
+  };
+
   const startup_image = req.files.imageFile;
   const fileName = startup_image.name;
   const tempName = Math.random().toString(36).substring(2) + fileName;
 
-  startup_image.mv(`${publicDir}${tempName}`, function (err) {
+  startup_image.mv(`${publicFolder}${tempName}`, (err) => {
+
     if (err) {
-      res.status = StatusCodes.BAD_REQUEST;
-      res.json({
-        message: 'Error: Upload Failed',
-        err,
-      });
-    } else {
-      res.status = StatusCodes.OK;
-      res.json({
-        message: 'Upload Success',
-        err,
+      response.errors.push({
+        message: err.message
       });
     }
   });
 
-  uploadFile(tempName, fileName);
+  if (!response.errors.length) {
+    let dbRes = await dbExecute(uploadFile, [tempName, fileName]);
+
+    response.code = dbRes.code;
+
+    if (dbRes.ok) {
+      response.ok = true;
+    } else {
+
+      response.errors.push({
+        message: dbRes.message
+      });
+    }
+  }
+
+  if (response.ok) {
+    return res.status(response.code).send();
+  } else {
+    return res.status(response.code).send(response);
+  }
 };
 
 async function download(req, res) {
@@ -47,7 +66,7 @@ async function download(req, res) {
       try {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         noFile =
-          fs.statSync(`${publicDir}${dbRes.fileName}`).size / 1024;
+          fs.statSync(`${publicFolder}${dbRes.fileName}`).size / 1024;
         break;
       } catch (e) {
         if (e.code === 'ENOENT') {
@@ -58,15 +77,15 @@ async function download(req, res) {
       }
     }
     let currentFileSizeInKB = fs.statSync(
-      `${publicDir}${dbRes.fileName}`
+      `${publicFolder}${dbRes.fileName}`
     ).size;
     while (currentFileSizeInKB < dbRes.fileSize) {
       currentFileSizeInKB = fs.statSync(
-        `${publicDir}${dbRes.fileName}`
+        `${publicFolder}${dbRes.fileName}`
       ).size;
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
-    res.download(`${publicDir}${dbRes.fileName}`);
+    res.download(`${publicFolder}${dbRes.fileName}`);
   } else {
     res.status = StatusCodes.BAD_REQUEST;
     res.json({
@@ -98,7 +117,7 @@ const deleteCallback = async (req, res) => {
     });
   }
 
-  if (filePath && fileId) {
+  if (!response.errors.length) {
     let dbRes = await dbExecute(deleteFile, [fileId]);
 
     response.code = dbRes.code;
@@ -114,7 +133,7 @@ const deleteCallback = async (req, res) => {
   }
 
   if (response.ok) {
-    return res.status(response.code);
+    return res.status(response.code).send();
   } else {
     return res.status(response.code).send(response);
   }

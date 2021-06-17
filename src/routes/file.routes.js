@@ -26,9 +26,9 @@ const { StatusCodes } = require('http-status-codes');
  *         description: The file to upload.
  *     tags: [file]
  *     responses:
- *       200:
+ *       204:
  *         description: upload success
- *       500:
+ *       400:
  *         description: upload failed
  */
 fileRouter.post('/upload', upload);
@@ -53,9 +53,9 @@ fileRouter.post('/upload', upload);
  *               type: string
  *     tags: [file]
  *     responses:
- *       200:
+ *       204:
  *         description: download success
- *       500:
+ *       400:
  *         description: download failed
  *
  */
@@ -122,9 +122,9 @@ fileRouter.patch('/rename', (req, res) => {
  *               type: string
  *     tags: [file]
  *     responses:
- *       200:
+ *       204:
  *         description: delete success
- *       500:
+ *       400:
  *         description: delete failed
  *
  */
