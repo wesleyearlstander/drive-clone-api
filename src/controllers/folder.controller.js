@@ -1,7 +1,5 @@
-const { dbExecute } = require('../config/database');
 const model = require('../models');
-const emptyFolder = require('../config/emptyFolder');
-const { updateFileTreeForUser } = require('./directory.controller');
+const { updateFileTreeForUser, dbExecute } = require('../services');
 
 exports.getChildren = (req, res) => {
   if (req.params?.folderId === null) {
@@ -12,7 +10,7 @@ exports.getChildren = (req, res) => {
   return res.status(200).send(req.oidc.user);
 };
 
-exports.make = async (req, res) => {
+exports.makeFolder = async (req, res) => {
   if (!req.body?.path) {
     return res.status(400).send({
       code: 400,
@@ -52,7 +50,7 @@ exports.make = async (req, res) => {
   return res.status(204).send();
 };
 
-exports.remove = async (req, res) => {
+exports.removeFolder = async (req, res) => {
   if (!req.body?.path) {
     return res.status(400).send({
       code: 400,
@@ -93,7 +91,7 @@ exports.remove = async (req, res) => {
   return res.status(204).send();
 };
 
-exports.move = async (req, res) => {
+exports.moveFolder = async (req, res) => {
   if (!req.body?.currentPath) {
     return res.status(400).send({
       code: 400,
@@ -142,7 +140,7 @@ exports.move = async (req, res) => {
   return res.status(204).send();
 };
 
-exports.rename = async (req, res) => {
+exports.renameFolder = async (req, res) => {
   if (!req.body?.path) {
     return res.status(400).send({
       code: 400,

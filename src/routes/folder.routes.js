@@ -1,7 +1,12 @@
 const express = require('express');
-const DirectoryRouter = express.Router();
-const { folderController } = require('../controllers');
-const buildDrive = require('../middleware/buildDrive');
+const folderRouter = express.Router();
+const {
+  makeFolder,
+  renameFolder,
+  moveFolder,
+  removeFolder,
+} = require('../controllers');
+const { buildDrive } = require('../middleware');
 
 /**
  * @swagger
@@ -49,8 +54,8 @@ const buildDrive = require('../middleware/buildDrive');
  *     required:
  *     - code
  *     - message
- *   V1DirectoryRequest:
- *     title: V1DirectoryRequest
+ *   MakeFolderObject:
+ *     title: MakeFolderObject
  *     example:
  *       path: /
  *       name: folderInRoot
@@ -63,8 +68,8 @@ const buildDrive = require('../middleware/buildDrive');
  *     required:
  *     - path
  *     - name
- *   V1DirectoryRequestabc:
- *     title: V1DirectoryRequestabc
+ *   MoveFolderObject:
+ *     title: MoveFolderObject
  *     example:
  *       currentPath: /
  *       newPath: /folderMadeWithDbConnection
@@ -81,8 +86,8 @@ const buildDrive = require('../middleware/buildDrive');
  *     - currentPath
  *     - newPath
  *     - name
- *   V1DirectoryRequestdef:
- *     title: V1DirectoryRequestdef
+ *   RenameFolderObject:
+ *     title: RenameFolderObject
  *     example:
  *       path: /
  *       currentName: folderInRoot
@@ -103,7 +108,7 @@ const buildDrive = require('../middleware/buildDrive');
 
 // /**
 //  * @swagger
-//  * /v1/directory/:id:
+//  * /v1/folders/:id:
 //  *   get:
 //  *     summary: Returns the list of all children in the directory
 //  *     responses:
@@ -126,11 +131,11 @@ const buildDrive = require('../middleware/buildDrive');
 //  *       404:
 //  *         $ref: '#/components/responses/NotFound'
 //  */
-// DirectoryRouter.get('/:id', folderController.getChildren);
+// folderRouter.get('/:id', folderController.getChildren);
 
 /**
  * @swagger
- * /v1/directory:
+ * /v1/folders:
  *   post:
  *     summary: Creates a new folder in the specified directory
  *     consumes:
@@ -140,7 +145,7 @@ const buildDrive = require('../middleware/buildDrive');
  *       in: body
  *       required: true
  *       schema:
- *         $ref: '#/definitions/V1DirectoryRequest'
+ *         $ref: '#/definitions/MakeFolderObject'
  *     tags: [folder]
  *     responses:
  *       '204':
@@ -170,10 +175,10 @@ const buildDrive = require('../middleware/buildDrive');
  *             code: '404'
  *             message: Resource was not found
  */
-DirectoryRouter.post('/', [buildDrive], folderController.make);
+folderRouter.post('/', [buildDrive], makeFolder);
 /**
  * @swagger
- * /v1/directory:
+ * /v1/folders:
  *   delete:
  *     summary: Removes a folder from the specified directory
  *     consumes:
@@ -183,7 +188,7 @@ DirectoryRouter.post('/', [buildDrive], folderController.make);
  *       in: body
  *       required: true
  *       schema:
- *         $ref: '#/definitions/V1DirectoryRequest'
+ *         $ref: '#/definitions/MakeFolderObject'
  *     tags: [folder]
  *     responses:
  *       '204':
@@ -213,10 +218,10 @@ DirectoryRouter.post('/', [buildDrive], folderController.make);
  *             code: '404'
  *             message: Resource was not found
  */
-DirectoryRouter.delete('/', [buildDrive], folderController.remove);
+folderRouter.delete('/', [buildDrive], removeFolder);
 /**
  * @swagger
- * /v1/directory:
+ * /v1/folders:
  *   put:
  *     summary: moves a folder between two directories
  *     consumes:
@@ -226,7 +231,7 @@ DirectoryRouter.delete('/', [buildDrive], folderController.remove);
  *       in: body
  *       required: true
  *       schema:
- *         $ref: '#/definitions/V1DirectoryRequestabc'
+ *         $ref: '#/definitions/MoveFolderObject'
  *     tags: [folder]
  *     responses:
  *       '204':
@@ -256,10 +261,10 @@ DirectoryRouter.delete('/', [buildDrive], folderController.remove);
  *             code: '404'
  *             message: Resource was not found
  */
-DirectoryRouter.put('/', [buildDrive], folderController.move);
+folderRouter.put('/', [buildDrive], moveFolder);
 /**
  * @swagger
- * /v1/directory:
+ * /v1/folders:
  *   patch:
  *     summary: renames a folder in the specified directory
  *     consumes:
@@ -269,7 +274,7 @@ DirectoryRouter.put('/', [buildDrive], folderController.move);
  *       in: body
  *       required: true
  *       schema:
- *         $ref: '#/definitions/V1DirectoryRequestdef'
+ *         $ref: '#/definitions/RenameFolderObject'
  *     tags: [folder]
  *     responses:
  *       '204':
@@ -299,6 +304,6 @@ DirectoryRouter.put('/', [buildDrive], folderController.move);
  *             code: '404'
  *             message: Resource was not found
  */
-DirectoryRouter.patch('/', [buildDrive], folderController.rename);
+folderRouter.patch('/', [buildDrive], renameFolder);
 
-module.exports = DirectoryRouter;
+module.exports = folderRouter;

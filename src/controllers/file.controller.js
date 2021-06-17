@@ -1,12 +1,11 @@
 const { StatusCodes } = require('http-status-codes');
 const path = require('path');
 const fs = require('fs');
-const { uploadFile, downloadFile } = require('../config/database');
+const { uploadFile, downloadFile } = require('../services');
 
 const publicDir = `${path.dirname(require.main.filename)}/public/`;
 
 const upload = (req, res) => {
-
   const startup_image = req.files.imageFile;
   const fileName = startup_image.name;
   const tempName = Math.random().toString(36).substring(2) + fileName;
@@ -16,23 +15,21 @@ const upload = (req, res) => {
       res.status = StatusCodes.BAD_REQUEST;
       res.json({
         message: 'Error: Upload Failed',
-        err
+        err,
       });
     } else {
       res.status = StatusCodes.OK;
       res.json({
         message: 'Upload Success',
-        err
+        err,
       });
     }
   });
 
   uploadFile(tempName, fileName);
-
 };
 
 async function download(req, res) {
-
   const fileId = req.body?.fileId;
 
   if (!fileId) {
@@ -45,12 +42,12 @@ async function download(req, res) {
   const dbRes = await downloadFile(fileId);
 
   if (dbRes) {
-
     let noFile = true;
     while (noFile) {
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        noFile = fs.statSync(`${publicDir}${dbRes.fileName}`).size/1024;
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        noFile =
+          fs.statSync(`${publicDir}${dbRes.fileName}`).size / 1024;
         break;
       } catch (e) {
         if (e.code === 'ENOENT') {
@@ -60,22 +57,25 @@ async function download(req, res) {
         }
       }
     }
-    let currentFileSizeInKB = fs.statSync(`${publicDir}${dbRes.fileName}`).size;
+    let currentFileSizeInKB = fs.statSync(
+      `${publicDir}${dbRes.fileName}`
+    ).size;
     while (currentFileSizeInKB < dbRes.fileSize) {
-      currentFileSizeInKB = fs.statSync(`${publicDir}${dbRes.fileName}`).size;
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      currentFileSizeInKB = fs.statSync(
+        `${publicDir}${dbRes.fileName}`
+      ).size;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
     res.download(`${publicDir}${dbRes.fileName}`);
   } else {
-
     res.status = StatusCodes.BAD_REQUEST;
     res.json({
       message: 'Error: Download Failed',
     });
   }
-};
+}
 
 module.exports = {
   upload,
-  download
+  download,
 };

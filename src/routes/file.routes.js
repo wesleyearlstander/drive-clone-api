@@ -1,6 +1,6 @@
 const express = require('express');
 const fileRouter = express.Router();
-const { upload, download } = require('../controllers/file.controller');
+const { upload, download } = require('../controllers');
 const { StatusCodes } = require('http-status-codes');
 
 /**
@@ -12,7 +12,7 @@ const { StatusCodes } = require('http-status-codes');
 
 /**
  * @swagger
- * /v1/file/upload:
+ * /v1/files/upload:
  *   x-swagger-route-controller: bus_api
  *   post:
  *     operationId: upload
@@ -35,7 +35,7 @@ fileRouter.post('/upload', upload);
 
 /**
  * @swagger
- * /v1/file/download:
+ * /v1/files/download:
  *   post:
  *     summary: downloads requested file
  *     consumes:

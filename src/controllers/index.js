@@ -1,7 +1,16 @@
-const fileController = require('./file.controller');
-const folderController = require('./folder.controller');
+const { upload, download } = require('./file.controller');
+const {
+  makeFolder,
+  renameFolder,
+  moveFolder,
+  removeFolder,
+} = require('./folder.controller');
 
 module.exports = {
-  folderController,
-  fileController,
+  upload,
+  download,
+  makeFolder,
+  renameFolder,
+  moveFolder,
+  removeFolder,
 };
