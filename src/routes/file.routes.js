@@ -58,9 +58,9 @@ fileRouter.post('/upload', [buildDrive], upload);
  *         schema:
  *           type: object
  *           properties:
- *             fileId:
+ *             path:
  *               type: string
- *             filePath:
+ *             name:
  *               type: string
  *     tags: [file]
  *     responses:
@@ -70,7 +70,7 @@ fileRouter.post('/upload', [buildDrive], upload);
  *         description: download failed
  *
  */
-fileRouter.post('/download', download);
+fileRouter.post('/download', [buildDrive], download);
 
 /**
  * @swagger

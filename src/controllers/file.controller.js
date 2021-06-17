@@ -77,50 +77,66 @@ const upload = async (req, res) => {
 const download = async (req, res) => {
 
   let response = {
-    ok: false,
+    ok: true,
     errors: [],
     code: 400,
   };
 
-  const fileId = req.body?.fileId;
-  const filePath = req.body?.filePath;
+  const name = req.body?.name;
+  const path = req.body?.path;
 
-  if (!fileId) {
+  if (!path) {
+    response.ok = false;
     response.errors.push({
-      message: 'Request body is missing fileId'
+      message: 'Request body is missing path'
     });
   }
 
-  if (!filePath) {
+  if (!name) {
+    response.ok = false;
     response.errors.push({
-      message: 'Request body is missing filePath'
+      message: 'Request body is missing name'
     });
-  }
-
-  let dbRes;
-
-  if (!response.errors.length) {
-
-    dbRes = await dbExecute(downloadFile, [fileId]);
-
-    response.code = dbRes.code;
-
-    if (dbRes.ok) {
-      response.ok = true;
-    } else {
-
-      response.errors.push({
-        message: dbRes.message
-      });
-    }
   }
 
   if (response.ok) {
-    res.status(response.code)
-    return res.download(`${publicFolder}${dbRes.fileName}`);
-  } else {
-    return res.status(response.code).send(response);
+
+    response = req.drive.getChild(
+      path,
+      new model.File({
+        name,
+      })
+    );
+
+    if (!response.ok) {
+
+      return res.status(response.code).send({errors: response.errors});
+    }
+
+    response = await dbExecute(downloadFile, [response.id]);
+
+    if (!response.ok) {
+
+      return res.status(response.code).send({errors: response.errors});
+    }
+    const fileName = response.fileName;
+    const mongoDoc = req.drive.format();
+
+    response = await dbExecute(updateFileTreeForUser, [
+      req.oidc.user.sub,
+      mongoDoc,
+    ]);
+
+    if (!response.ok) {
+
+      return res.status(response.code).send({errors: response.errors});
+    }
+
+    res.status(response.code);
+    return res.download(`${publicFolder}${fileName}`);
   }
+
+  return res.status(response.code).send({errors: response.errors});
 }
 
 const deleteCallback = async (req, res) => {
@@ -136,18 +152,21 @@ const deleteCallback = async (req, res) => {
   const path = req.body?.path;
 
   if (!fileId) {
+    response.ok = false;
     response.errors.push({
       message: 'Request body is missing fileId'
     });
   }
 
   if (!path) {
+    response.ok = false;
     response.errors.push({
       message: 'Request body is missing path'
     });
   }
 
   if (!name) {
+    response.ok = false;
     response.errors.push({
       message: 'Request body is missing name'
     });
