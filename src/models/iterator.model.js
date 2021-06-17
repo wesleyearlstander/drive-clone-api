@@ -18,11 +18,9 @@ class Iterator {
   }
 
   remove(item) {
-    this.items.splice(
-      this.items.findIndex((driveItem) => {
-        return driveItem.getName() === item.getName();
-      })
-    );
+    this.items = this.items.filter((driveItem) => {
+      return driveItem.getName() !== item.getName();
+    });
   }
 
   rename(newDriveItem, item) {

@@ -6,7 +6,7 @@ const {
   download,
   deleteCallback,
   moveFile,
-  renameFile
+  renameFile,
 } = require('../controllers');
 
 /**
@@ -76,7 +76,7 @@ fileRouter.post('/download', [buildDrive], download);
  * @swagger
  * /v1/files/move:
  *   put:
- *     summary: move a file
+ *     summary: moves a file between two directories
  *     consumes:
  *     - application/json
  *     parameters:
@@ -84,6 +84,10 @@ fileRouter.post('/download', [buildDrive], download);
  *       in: body
  *       required: true
  *       schema:
+ *        example:
+ *          currentPath: /
+ *          newPath: /folderMadeWithDbConnection
+ *          name: folderInRoot
  *        type: object
  *        properties:
  *          currentPath:
@@ -153,8 +157,6 @@ fileRouter.patch('/rename', [buildDrive], renameFile);
  *          path:
  *            type: string
  *          name:
- *            type: string
- *          fileId:
  *            type: string
  *     tags: [file]
  *     responses:
