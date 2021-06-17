@@ -1,4 +1,4 @@
-const dbExecute = require('../config/database');
+const { dbExecute } = require('../config/database');
 const model = require('../models');
 const emptyFolder = require('../config/emptyFolder');
 const { updateFileTreeForUser } = require('./directory.controller');

@@ -1,13 +1,65 @@
 const express = require('express');
 const fileRouter = express.Router();
-const { upload } = require('../controllers/file.controller');
+const { upload, download } = require('../controllers/file.controller');
 const { StatusCodes } = require('http-status-codes');
 
-// TODO: Mohammed
-FileRouter.post('/upload/file', upload);
+/**
+ * @swagger
+ * tags:
+ *   name: file
+ *   description: File APIs
+ */
 
-// TODO: Mohammed
-fileRouter.get('/download', (req, res) => {});
+/**
+ * @swagger
+ * /v1/file/upload:
+ *   x-swagger-route-controller: bus_api
+ *   post:
+ *     operationId: upload
+ *     summary: uploads a file
+ *     consumes:
+ *       - multipart/form-data
+ *     parameters:
+ *       - in: formData
+ *         name: imageFile
+ *         type: file
+ *         description: The file to upload.
+ *     tags: [file]
+ *     responses:
+ *       200:
+ *         description: upload success
+ *       500:
+ *         description: upload failed
+ */
+fileRouter.post('/upload', upload);
+
+/**
+ * @swagger
+ * /v1/file/download:
+ *   post:
+ *     summary: downloads requested file
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: user
+ *         description: The user to create.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             fileId:
+ *               type: string
+ *             filePath:
+ *               type: string
+ *     tags: [file]
+ *     responses:
+ *       200:
+ *         description: download success
+ *       500:
+ *         description: download failed
+ *
+ */
+fileRouter.post('/download', download);
 
 fileRouter.put('/move', (req, res) => {
   const file = req.query.file;
