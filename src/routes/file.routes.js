@@ -1,7 +1,15 @@
 const express = require('express');
 const fileRouter = express.Router();
 const { upload, download } = require('../controllers');
-const { StatusCodes } = require('http-status-codes');
+const buildDrive = require('../middleware/buildDrive');
+const { moveFile, deleteFile, renameFile } = require('../controllers/file.controller');
+
+/**
+ * @swagger
+ * tags:
+ *   name: files
+ *   description: Files Endpoints
+ */
 
 /**
  * @swagger
@@ -60,60 +68,97 @@ fileRouter.post('/upload', upload);
  *
  */
 fileRouter.post('/download', download);
+/**
+ * @swagger
+ * /v1/files/move:
+ *   put:
+ *     summary: move a file
+ *     consumes:
+ *     - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       required: true
+ *       schema:
+ *        type: object
+ *        properties:
+ *          currentPath:
+ *            type: string
+ *          newPath:
+ *            type: string
+ *          fileName:
+ *            type: string
+ *     tags: [files]
+ *     responses:
+ *       200:
+ *         description: file renamed successfully
+ *       404:
+ *         description: file not found
+ *       500:
+ *          description: internal server error
+ *
+ */
+fileRouter.put('/move', [buildDrive], moveFile);
 
-fileRouter.put('/move', (req, res) => {
-  const file = req.query.file;
-  const directory = req.query.directory;
-
-  if (!file) {
-    res.status = StatusCodes.NOT_FOUND;
-    res.json({
-      message: 'File Not Found',
-    });
-  }
-
-  res.status = StatusCodes.OK;
-  res.json({
-    message: `${file} has been moved to ${directory}`,
-  });
-});
-
-fileRouter.patch('/rename', (req, res) => {
-  const file = req.query.file;
-  const name = req.query.name;
-
-  if (!file) {
-    res.status = StatusCodes.NOT_FOUND;
-    res.json({
-      message: `File: ${file} not found`,
-    });
-
-    if (!name) {
-      res.status = StatusCodes.BAD_REQUEST;
-      res.json({
-        message: 'Please provide new file name',
-      });
-    }
-  }
-
-  res.status = StatusCodes.OK;
-  res.json({
-    message: `File ${file} renamed to ${name}`,
-  });
-});
-
-fileRouter.delete('/delete', (req, res) => {
-  const file = req.query.file;
-
-  if (!file) {
-    res.status = StatusCodes.NOT_FOUND;
-    res.json({
-      message: `File: ${file} not found`,
-    });
-  }
-
-  res.status = StatusCodes.NO_CONTENT;
-  res.send();
-});
+/**
+ * @swagger
+ * /v1/files/rename:
+ *   patch:
+ *     summary: rename a file
+ *     consumes:
+ *     - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       required: true
+ *       schema:
+ *        type: object
+ *        properties:
+ *          path:
+ *            type: string
+ *          currentName:
+ *            type: string
+ *          newName:
+ *            type: string
+ *     tags: [files]
+ *     responses:
+ *       200:
+ *         description: file renamed successfully
+ *       404:
+ *         description: file not found
+ *       500:
+ *          description: internal server error
+ *
+ */
+fileRouter.patch('/rename', [buildDrive], renameFile);
+/**
+ * @swagger
+ * /v1/files/delete:
+ *   delete:
+ *     summary: deletes a file
+ *     consumes:
+ *     - application/json
+ *     parameters:
+ *     - name: body
+ *       in: body
+ *       required: true
+ *       schema:
+ *        type: object
+ *        properties:
+ *          path:
+ *            type: string
+ *          name:
+ *            type: string
+ *     tags: [files]
+ *     responses:
+ *       200:
+ *         description: file renamed successfully
+ *       404:
+ *         description: file not found
+ *       500:
+ *          description: internal server error
+ *
+ */
+fileRouter.delete('/delete', [buildDrive], deleteFile);
 
 module.exports = fileRouter;
