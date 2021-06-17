@@ -3,6 +3,7 @@ const {
   uploadFile,
   downloadFile,
   deleteFile,
+  renameFileById,
   findUserTreeById,
   createFileTreeForUser,
   updateFileTreeForUser,
@@ -15,5 +16,6 @@ module.exports = {
   uploadFile,
   downloadFile,
   deleteFile,
+  renameFileById,
   updateFileTreeForUser,
 };

@@ -56,6 +56,27 @@ async function deleteFile(client, fileId) {
   };
 }
 
+async function renameFileById(client, fileId, newFileName) {
+  let db = client.db('drive-clone-db');
+  const bucket = new GridFSBucket(db);
+
+  try {
+    await bucket.rename(new ObjectID(fileId), newFileName);
+  } catch (err) {
+
+    return {
+      ok: false,
+      code: 400,
+      errors: err.message
+    };
+  }
+
+  return {
+    ok: true,
+    code: 204
+  };
+}
+
 async function uploadFile(client, tempName, fileName) {
   const db = client.db('drive-clone-db');
   const bucket = new GridFSBucket(db);
@@ -165,6 +186,7 @@ module.exports = {
   uploadFile,
   downloadFile,
   deleteFile,
+  renameFileById,
   findUserTreeById,
   createFileTreeForUser,
   updateFileTreeForUser,
