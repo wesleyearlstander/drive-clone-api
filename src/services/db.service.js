@@ -1,10 +1,12 @@
 const dotenv = require('dotenv');
 const assert = require('assert');
+const util = require('util');
+const stream = require('stream');
 const fs = require('fs');
 const path = require('path');
 const { MongoClient, GridFSBucket, ObjectID } = require('mongodb');
 
-const appDir = path.dirname(require.main.filename);
+const publicFolder = `${path.dirname(require.main.filename)}/public/`;
 
 dotenv.config();
 
@@ -25,27 +27,6 @@ async function dbExecute(func, params) {
   return result;
 }
 
-async function uploadFile(tempName, fileName) {
-  const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@drive-clone-cluster.cuxyh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-  const client = new MongoClient(uri, { useUnifiedTopology: true });
-  client.connect(function (error, client) {
-    assert.ifError(error);
-
-    const db = client.db('drive-clone-db');
-
-    const bucket = new GridFSBucket(db);
-
-    fs.createReadStream(appDir + '/public/' + tempName)
-      .pipe(bucket.openUploadStream(fileName))
-      .on('error', function (error) {
-        assert.ifError(error);
-      })
-      .on('finish', function (res) {
-        console.log('done!');
-      });
-  });
-}
-
 async function findFileById(client, _id) {
   let res = await client
     .db('drive-clone-db')
@@ -54,43 +35,91 @@ async function findFileById(client, _id) {
   return res;
 }
 
-async function downloadFile(fileId) {
-  const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@drive-clone-cluster.cuxyh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-  const client = new MongoClient(uri, { useUnifiedTopology: true });
-  let result = await dbExecute(findFileById, [fileId]).catch(
-    console.error
-  );
+async function deleteFile(client, fileId) {
+  let db = client.db('drive-clone-db');
+  const bucket = new GridFSBucket(db);
 
-  let fileName, fileSize;
+  try {
+    await bucket.delete(new ObjectID(fileId));
+  } catch (err) {
 
-  if (result) {
-    fileName =
-      Math.random().toString(36).substring(2) + result.filename;
-    fileSize = result.length;
-
-    client.connect(function (error, client) {
-      assert.ifError(error);
-
-      const db = client.db('drive-clone-db');
-
-      const bucket = new GridFSBucket(db);
-
-      bucket
-        .openDownloadStream(new ObjectID(fileId))
-        .pipe(fs.createWriteStream(appDir + '/public/' + fileName))
-        .on('error', function (error) {
-          assert.ifError(error);
-        })
-        .on('finish', function () {
-          console.log('done!');
-        });
-    });
+    return {
+      ok: false,
+      code: 400,
+      message: err.message
+    };
   }
 
   return {
-    fileName,
-    fileSize,
+    ok: true,
+    code: 204
   };
+}
+
+async function uploadFile(client, tempName, fileName) {
+  const db = client.db('drive-clone-db');
+  const bucket = new GridFSBucket(db);
+
+  try {
+    const readStream = fs.createReadStream(`${publicFolder}${tempName}`);
+    const uploadStream = bucket.openUploadStream(fileName);
+
+    await util.promisify(stream.pipeline)(readStream, uploadStream);
+  } catch (err) {
+
+    return {
+      ok: false,
+      code: 400,
+      message: err.message
+    };
+  }
+
+  return {
+    ok: true,
+    code: 204
+  };
+}
+
+async function downloadFile(client, fileId) {
+
+  try {
+
+    let result = await dbExecute(findFileById, [fileId]).catch(console.error);
+
+    if (result) {
+      const fileName = Math.random().toString(36).substring(2) + result.filename;
+
+      const db = client.db('drive-clone-db');
+      const bucket = new GridFSBucket(db);
+
+      try {
+        const writeStream = fs.createWriteStream(`${publicFolder}${fileName}`);
+        const uploadStream = bucket.openDownloadStream(new ObjectID(fileId));
+
+        await util.promisify(stream.pipeline)(uploadStream, writeStream);
+
+        return {
+          ok: true,
+          code: 204,
+          fileName,
+        };
+      } catch (err) {
+
+        return {
+          ok: false,
+          code: 400,
+          message: err.message
+        };
+      }
+    }
+  } catch (err) {
+
+    return {
+      ok: false,
+      code: 400,
+      message: err.message
+    };
+  }
 }
 
 async function findUserTreeById(client, _id) {
@@ -134,6 +163,7 @@ module.exports = {
   dbExecute,
   uploadFile,
   downloadFile,
+  deleteFile,
   findUserTreeById,
   createFileTreeForUser,
   updateFileTreeForUser,

@@ -1,82 +1,184 @@
 const { StatusCodes } = require('http-status-codes');
 const path = require('path');
 const fs = require('fs');
-const { uploadFile, downloadFile } = require('../services');
 const model = require('../models');
-const { dbExecute } = require('../services/db.service');
-const { updateFileTreeForUser } = require('../services');
+const {
+  dbExecute,
+  uploadFile,
+  downloadFile,
+  deleteFile,
+  updateFileTreeForUser
+} = require('../services');
 
-const publicDir = `${path.dirname(require.main.filename)}/public/`;
+const publicFolder = `${path.dirname(require.main.filename)}/public/`;
 
-const upload = (req, res) => {
+const upload = async (req, res) => {
+
+  let response = {
+    ok: false,
+    errors: [],
+    code: 400,
+  };
+
   const startup_image = req.files.imageFile;
   const fileName = startup_image.name;
   const tempName = Math.random().toString(36).substring(2) + fileName;
 
-  startup_image.mv(`${publicDir}${tempName}`, function (err) {
+  startup_image.mv(`${publicFolder}${tempName}`, (err) => {
+
     if (err) {
-      res.status = StatusCodes.BAD_REQUEST;
-      res.json({
-        message: 'Error: Upload Failed',
-        err,
-      });
-    } else {
-      res.status = StatusCodes.OK;
-      res.json({
-        message: 'Upload Success',
-        err,
+      response.errors.push({
+        message: err.message
       });
     }
   });
 
-  uploadFile(tempName, fileName);
+  if (!response.errors.length) {
+    const dbRes = await dbExecute(uploadFile, [tempName, fileName]);
+
+    response.code = dbRes.code;
+
+    if (dbRes.ok) {
+      response.ok = true;
+    } else {
+
+      response.errors.push({
+        message: dbRes.message
+      });
+    }
+  }
+
+  if (response.ok) {
+    return res.status(response.code).send();
+  } else {
+    return res.status(response.code).send(response);
+  }
 };
 
-async function download(req, res) {
-  const fileId = req.body.fileId;
+const download = async (req, res) => {
+
+  let response = {
+    ok: false,
+    errors: [],
+    code: 400,
+  };
+
+  const fileId = req.body?.fileId;
+  const filePath = req.body?.filePath;
 
   if (!fileId) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing fileId',
+    response.errors.push({
+      message: 'Request body is missing fileId'
     });
   }
 
-  const dbRes = await downloadFile(fileId);
-
-  if (dbRes) {
-    let noFile = true;
-    while (noFile) {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        noFile =
-          fs.statSync(`${publicDir}${dbRes.fileName}`).size / 1024;
-        break;
-      } catch (e) {
-        if (e.code === 'ENOENT') {
-        } else {
-          console.log(e);
-          break;
-        }
-      }
-    }
-    let currentFileSizeInKB = fs.statSync(
-      `${publicDir}${dbRes.fileName}`
-    ).size;
-    while (currentFileSizeInKB < dbRes.fileSize) {
-      currentFileSizeInKB = fs.statSync(
-        `${publicDir}${dbRes.fileName}`
-      ).size;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-    res.download(`${publicDir}${dbRes.fileName}`);
-  } else {
-    res.status = StatusCodes.BAD_REQUEST;
-    res.json({
-      message: 'Error: Download Failed',
+  if (!filePath) {
+    response.errors.push({
+      message: 'Request body is missing filePath'
     });
+  }
+
+  let dbRes;
+
+  if (!response.errors.length) {
+
+    dbRes = await dbExecute(downloadFile, [fileId]);
+
+    response.code = dbRes.code;
+
+    if (dbRes.ok) {
+      response.ok = true;
+    } else {
+
+      response.errors.push({
+        message: dbRes.message
+      });
+    }
+  }
+
+  if (response.ok) {
+    res.status(response.code)
+    return res.download(`${publicFolder}${dbRes.fileName}`);
+  } else {
+    return res.status(response.code).send(response);
   }
 }
+
+const deleteCallback = async (req, res) => {
+
+  let response = {
+    ok: false,
+    errors: [],
+    code: 400,
+  };
+
+  const fileId = req.body?.fileId;
+  const filePath = req.body?.filePath;
+
+  if (!fileId) {
+    response.errors.push({
+      message: 'Request body is missing fileId'
+    });
+  }
+
+  if (!filePath) {
+    response.errors.push({
+      message: 'Request body is missing filePath'
+    });
+  }
+
+  if (!response.errors.length) {
+
+    const driveRes = req.drive.remove(
+      req.body.path,
+      new model.File({
+        name: req.body.name,
+      })
+    );
+
+    if (driveRes.ok) {
+
+      let dbRes = await dbExecute(deleteFile, [fileId]);
+
+      response.code = dbRes.code;
+
+      if (dbRes.ok) {
+
+        const mongoDoc = req.drive.format();
+
+        dbRes = await dbExecute(updateFileTreeForUser, [
+          req.oidc.user.sub,
+          mongoDoc,
+        ]);
+
+        if (dbRes.ok) {
+          response.ok = true;
+        } else {
+          response.errors.push({
+            message: dbRes.message
+          });
+        }
+
+      } else {
+
+        response.errors.push({
+          message: dbRes.message
+        });
+      }
+    } else {
+
+      response.errors.push({
+        message: driveRes.message
+      });
+    }
+  }
+
+  if (response.ok) {
+    return res.status(response.code).send();
+  } else {
+    return res.status(response.code).send(response);
+  }
+};
 
 const renameFile = async (req, res) => {
   if (!req.body.path) {
@@ -162,7 +264,7 @@ const moveFile = async (req, res) => {
       message: 'File or path did not exist'
     });
   }
-  
+
   const mongoDoc = req.drive.format();
 
   const updateFileTree = await dbExecute(updateFileTreeForUser, [
@@ -176,51 +278,10 @@ const moveFile = async (req, res) => {
   res.send();
 }
 
-const deleteFile = async (req, res) => {
-  if (!req.body.path) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder path',
-    });
-  }
-
-  if (!req.body.name) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder name',
-    });
-  }
-
-  const response = req.drive.remove(
-    req.body.path,
-    new model.File({
-      name: req.body.name,
-    })
-  );
-
-  if (!response) {
-    return res.status(404).send({
-      message: 'Folder or path did not exist',
-    });
-  }
-
-  const mongoDoc = req.drive.format();
-
-  const updateFileTree = await dbExecute(updateFileTreeForUser, [
-    req.oidc.user.sub,
-    mongoDoc,
-  ]);
-
-  // TODO: check negative scenarios
-  // TODO: Remove any children file objects from db
-
-  return res.status(204).send();
-}
-
 module.exports = {
   upload,
   download,
+  deleteCallback,
   renameFile,
   moveFile,
-  deleteFile
 };

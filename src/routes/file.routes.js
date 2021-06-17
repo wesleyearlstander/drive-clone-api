@@ -1,15 +1,13 @@
 const express = require('express');
 const fileRouter = express.Router();
-const { upload, download } = require('../controllers');
-const buildDrive = require('../middleware/buildDrive');
-const { moveFile, deleteFile, renameFile } = require('../controllers/file.controller');
-
-/**
- * @swagger
- * tags:
- *   name: files
- *   description: Files Endpoints
- */
+const { buildDrive } = require('../middleware');
+const {
+  upload,
+  download,
+  deleteCallback,
+  moveFile,
+  renameFile
+} = require('../controllers');
 
 /**
  * @swagger
@@ -34,9 +32,9 @@ const { moveFile, deleteFile, renameFile } = require('../controllers/file.contro
  *         description: The file to upload.
  *     tags: [file]
  *     responses:
- *       200:
+ *       204:
  *         description: upload success
- *       500:
+ *       400:
  *         description: upload failed
  */
 fileRouter.post('/upload', upload);
@@ -50,8 +48,8 @@ fileRouter.post('/upload', upload);
  *       - application/json
  *     parameters:
  *       - in: body
- *         name: user
- *         description: The user to create.
+ *         name: fileSpecifier
+ *         description: specifies fileId at filePath to be downloaded
  *         schema:
  *           type: object
  *           properties:
@@ -61,13 +59,14 @@ fileRouter.post('/upload', upload);
  *               type: string
  *     tags: [file]
  *     responses:
- *       200:
+ *       204:
  *         description: download success
- *       500:
+ *       400:
  *         description: download failed
  *
  */
 fileRouter.post('/download', download);
+
 /**
  * @swagger
  * /v1/files/move:
@@ -88,7 +87,7 @@ fileRouter.post('/download', download);
  *            type: string
  *          fileName:
  *            type: string
- *     tags: [files]
+ *     tags: [file]
  *     responses:
  *       200:
  *         description: file renamed successfully
@@ -120,7 +119,7 @@ fileRouter.put('/move', [buildDrive], moveFile);
  *            type: string
  *          newName:
  *            type: string
- *     tags: [files]
+ *     tags: [file]
  *     responses:
  *       200:
  *         description: file renamed successfully
@@ -131,6 +130,7 @@ fileRouter.put('/move', [buildDrive], moveFile);
  *
  */
 fileRouter.patch('/rename', [buildDrive], renameFile);
+
 /**
  * @swagger
  * /v1/files/delete:
@@ -149,7 +149,7 @@ fileRouter.patch('/rename', [buildDrive], renameFile);
  *            type: string
  *          name:
  *            type: string
- *     tags: [files]
+ *     tags: [file]
  *     responses:
  *       200:
  *         description: file renamed successfully
@@ -159,6 +159,6 @@ fileRouter.patch('/rename', [buildDrive], renameFile);
  *          description: internal server error
  *
  */
-fileRouter.delete('/delete', [buildDrive], deleteFile);
+fileRouter.delete('/delete', [buildDrive], deleteCallback);
 
 module.exports = fileRouter;

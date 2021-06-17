@@ -2,6 +2,7 @@ const {
   dbExecute,
   uploadFile,
   downloadFile,
+  deleteFile,
   findUserTreeById,
   createFileTreeForUser,
   updateFileTreeForUser,
@@ -13,5 +14,6 @@ module.exports = {
   dbExecute,
   uploadFile,
   downloadFile,
+  deleteFile,
   updateFileTreeForUser,
 };
