@@ -27,13 +27,16 @@ class Folder extends DriveItem {
   }
 
   peformActionAtPath(paths, action, params) {
-    let found = false;
+    let found = {
+      ok: false,
+      error: 'Path or item does not exist',
+      code: 404,
+    };
 
     const cleanPaths = paths.filter((path) => !!path);
 
     if (cleanPaths.length === 0) {
-      action(this, ...params);
-      found = true;
+      return (found = action(this, ...params));
     }
 
     this.iterator.each((item) => {
@@ -52,7 +55,19 @@ class Folder extends DriveItem {
     return this.peformActionAtPath(
       paths,
       (item, driveItem) => {
+        if (item.iterator.getChild(driveItem)) {
+          return {
+            ok: false,
+            error:
+              'Item in current directory with given name already exists',
+            code: 422,
+          };
+        }
         item.iterator.add(driveItem);
+        return {
+          ok: true,
+          code: 201,
+        };
       },
       [driveItem]
     );
@@ -65,20 +80,36 @@ class Folder extends DriveItem {
       paths,
       (item, driveItem) => {
         item.iterator.remove(driveItem);
+        return {
+          ok: true,
+          code: 204,
+        };
       },
       [driveItem]
     );
   }
 
-  rename(path, newName, driveItem) {
+  rename(path, newDriveItem, driveItem) {
     const paths = path.split('/');
 
     return this.peformActionAtPath(
       paths,
-      (item, newName, driveItem) => {
-        item.iterator.rename(newName, driveItem);
+      (item, newDriveItem, driveItem) => {
+        if (item.iterator.getChild(newDriveItem)) {
+          return {
+            ok: false,
+            error:
+              'Item in current directory with given name already exists',
+            code: 422,
+          };
+        }
+        item.iterator.rename(newDriveItem, driveItem);
+        return {
+          ok: true,
+          code: 204,
+        };
       },
-      [newName, driveItem]
+      [newDriveItem, driveItem]
     );
   }
 
@@ -90,13 +121,25 @@ class Folder extends DriveItem {
       paths,
       (item, driveItem) => {
         existingDriveItem = item.iterator.getChild(driveItem);
+        return {
+          ok: true,
+          code: 204,
+        };
       },
       [driveItem]
     );
 
+    if (!existingDriveItem) {
+      return {
+        ok: false,
+        error: 'Requested drive item does not exist',
+        code: 404,
+      };
+    }
+
     const added = this.add(newPath, existingDriveItem);
 
-    if (added) {
+    if (added.ok) {
       const removed = this.remove(currentPath, existingDriveItem);
 
       return removed;

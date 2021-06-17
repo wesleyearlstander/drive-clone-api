@@ -11,109 +11,152 @@ exports.getChildren = (req, res) => {
 };
 
 exports.makeFolder = async (req, res) => {
+  let response = {
+    ok: true,
+    errors: [],
+    code: 400,
+  };
+
   if (!req.body?.path) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder path',
+    response.errors.push({
+      message: "Request body is missing folder's path",
     });
+    response.ok = false;
   }
 
   if (!req.body?.name) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder name',
+    response.errors.push({
+      message: "Request body is missing folder's name",
+    });
+    response.ok = false;
+  }
+
+  if (!response.ok) {
+    return res.status(response.code).send({
+      errors: response.errors,
     });
   }
 
-  const response = req.drive.add(
+  response = req.drive.add(
     req.body.path,
     new model.Folder({
       name: req.body.name,
     })
   );
 
-  if (!response) {
-    return res.status(404).send({
-      message: 'Folder or path did not exist',
+  if (!response.ok) {
+    return res.status(response.code).send({
+      errors: [response.error],
     });
   }
 
   const mongoDoc = req.drive.format();
 
-  const updateFileTree = await dbExecute(updateFileTreeForUser, [
+  response = await dbExecute(updateFileTreeForUser, [
     req.oidc.user.sub,
     mongoDoc,
   ]);
 
-  // Todo: check negative scenarios
+  if (!response.ok) {
+    return res.status(response.code).send(response.errors);
+  }
 
-  return res.status(204).send();
+  return res.status(response.code).send();
 };
 
 exports.removeFolder = async (req, res) => {
+  let response = {
+    ok: true,
+    errors: [],
+    code: 400,
+  };
+
   if (!req.body?.path) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder path',
+    response.errors.push({
+      message: "Request body is missing folder's path",
     });
+    response.ok = false;
   }
 
   if (!req.body?.name) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder name',
+    response.errors.push({
+      message: "Request body is missing folder's name",
+    });
+    response.ok = false;
+  }
+
+  if (!response.ok) {
+    return res.status(response.code).send({
+      errors: response.errors,
     });
   }
 
-  const response = req.drive.remove(
+  response = req.drive.remove(
     req.body.path,
     new model.Folder({
       name: req.body.name,
     })
   );
 
-  if (!response) {
-    return res.status(404).send({
-      message: 'Folder or path did not exist',
+  if (!response.ok) {
+    return res.status(response.code).send({
+      errors: [response.error],
     });
   }
 
+  // TODO: Remove any children file objects from db
+
   const mongoDoc = req.drive.format();
 
-  const updateFileTree = await dbExecute(updateFileTreeForUser, [
+  response = await dbExecute(updateFileTreeForUser, [
     req.oidc.user.sub,
     mongoDoc,
   ]);
 
-  // TODO: check negative scenarios
-  // TODO: Remove any children file objects from db
+  if (!response.ok) {
+    return res.status(response.code).send({
+      errors: [response.error],
+    });
+  }
 
-  return res.status(204).send();
+  return res.status(response.code).send();
 };
 
 exports.moveFolder = async (req, res) => {
+  let response = {
+    ok: true,
+    errors: [],
+    code: 400,
+  };
+
   if (!req.body?.currentPath) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder current path',
+    response.errors.push({
+      message: "Request body is missing folder's current path",
     });
+    response.ok = false;
   }
 
   if (!req.body?.newPath) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder new path',
+    response.errors.push({
+      message: "Request body is missing folder's new path",
     });
+    response.ok = false;
   }
 
   if (!req.body?.name) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder name',
+    response.errors.push({
+      message: "Request body is missing folder's name",
+    });
+    response.ok = false;
+  }
+
+  if (!response.ok) {
+    return res.status(response.code).send({
+      errors: response.errors,
     });
   }
 
-  const response = req.drive.move(
+  response = req.drive.move(
     req.body.currentPath,
     req.body.newPath,
     new model.Folder({
@@ -121,70 +164,90 @@ exports.moveFolder = async (req, res) => {
     })
   );
 
-  if (!response) {
-    return res.status(404).send({
-      message: 'Folder or paths did not exist',
+  if (!response.ok) {
+    return res.status(response.code).send({
+      errors: [response.error],
     });
   }
 
   const mongoDoc = req.drive.format();
 
-  const updateFileTree = await dbExecute(updateFileTreeForUser, [
+  response = await dbExecute(updateFileTreeForUser, [
     req.oidc.user.sub,
     mongoDoc,
   ]);
 
-  // TODO: check negative scenarios
-  // TODO: Remove any children file objects from db
+  if (!response.ok) {
+    return res.status(response.code).send({
+      errors: [response.error],
+    });
+  }
 
-  return res.status(204).send();
+  return res.status(response.code).send();
 };
 
 exports.renameFolder = async (req, res) => {
+  let response = {
+    ok: true,
+    errors: [],
+    code: 400,
+  };
+
   if (!req.body?.path) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder path',
+    response.errors.push({
+      message: "Request body is missing folder's path",
     });
+    response.ok = false;
   }
 
   if (!req.body?.currentName) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder current name',
+    response.errors.push({
+      message: "Request body is missing folder's current name",
     });
+    response.ok = false;
   }
 
   if (!req.body?.newName) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing folder new name',
+    response.errors.push({
+      message: "Request body is missing folder's new name",
+    });
+    response.ok = false;
+  }
+
+  if (!response.ok) {
+    return res.status(response.code).send({
+      errors: response.errors,
     });
   }
 
-  const response = req.drive.rename(
+  response = req.drive.rename(
     req.body.path,
-    req.body.newName,
+    new model.Folder({
+      name: req.body.newName,
+    }),
     new model.Folder({
       name: req.body.currentName,
     })
   );
 
-  if (!response) {
-    return res.status(404).send({
-      message: 'Folder or path did not exist',
+  if (!response.ok) {
+    return res.status(response.code).send({
+      errors: [response.error],
     });
   }
 
   const mongoDoc = req.drive.format();
 
-  const updateFileTree = await dbExecute(updateFileTreeForUser, [
+  response = await dbExecute(updateFileTreeForUser, [
     req.oidc.user.sub,
     mongoDoc,
   ]);
 
-  // TODO: check negative scenarios
-  // TODO: Remove any children file objects from db
+  if (!response.ok) {
+    return res.status(response.code).send({
+      errors: [response.error],
+    });
+  }
 
-  return res.status(204).send();
+  return res.status(response.code).send();
 };
