@@ -6,7 +6,8 @@ const {
   uploadFile,
   downloadFile,
   deleteFile,
-  updateFileTreeForUser,
+  renameFileById,
+  updateFileTreeForUser
 } = require('../services');
 
 const publicFolder = `${path.dirname(require.main.filename)}/public/`;
@@ -217,53 +218,85 @@ const deleteCallback = async (req, res) => {
 };
 
 const renameFile = async (req, res) => {
-  if (!req.body.path) {
-    return res.status(StatusCodes.BAD_REQUEST).send({
-      code: StatusCodes.BAD_REQUEST,
-      message: 'Missing file path',
+
+  let response = {
+    ok: true,
+    errors: [],
+    code: 400,
+  };
+
+  const currentName = req.body?.currentName;
+  const newName = req.body?.newName;
+  const path = req.body?.path;
+
+  if (!path) {
+    response.ok = false;
+    response.errors.push({
+      message: 'Request body is missing path'
     });
   }
 
-  if (!req.body.currentName) {
-    return res.status(StatusCodes.BAD_REQUEST).send({
-      code: StatusCodes.BAD_REQUEST,
-      message: 'Missing file current name',
+  if (!currentName) {
+    response.ok = false;
+    response.errors.push({
+      message: 'Request body is missing currentName'
     });
   }
 
-  if (!req.body.newName) {
-    return res.status(StatusCodes.BAD_REQUEST).send({
-      code: StatusCodes.BAD_REQUEST,
-      message: 'Missing file new name',
+  if (!newName) {
+    response.ok = false;
+    response.errors.push({
+      message: 'Request body is missing newName'
     });
   }
 
-  const response = req.drive.rename(
-    req.body.path,
-    req.body.newName,
-    new model.File({
-      name: req.body.currentName,
-    })
-  );
+  if (response.ok) {
 
-  if (!response) {
-    return res.status(StatusCodes.NOT_FOUND).send({
-      message: 'File or path did not exist',
-    });
+    response = req.drive.getChild(
+      path,
+      new model.File({
+        currentName,
+      })
+    );
+
+    if (!response.ok) {
+
+      return res.status(response.code).send({errors: response.errors});
+    }
+    const fileId = response.id;
+
+    response = req.drive.rename(
+      req.body.path,
+      req.body.newName,
+      new model.File({
+        name: req.body.currentName,
+      })
+    );
+
+    response = await dbExecute(renameFileById, [fileId, newName]);
+
+    if (!response.ok) {
+
+      return res.status(response.code).send({errors: response.errors});
+    }
+
+    const mongoDoc = req.drive.format();
+
+    response = await dbExecute(updateFileTreeForUser, [
+      req.oidc.user.sub,
+      mongoDoc,
+    ]);
+
+    if (!response.ok) {
+
+      return res.status(response.code).send({errors: response.errors});
+    }
+
+    return res.status(response.code).send();
   }
 
-  const mongoDoc = req.drive.format();
-
-  const updateFileTree = await dbExecute(updateFileTreeForUser, [
-    req.oidc.user.sub,
-    mongoDoc,
-  ]);
-
-  // TODO: check negative scenarios
-  // TODO: Remove any children file objects from db
-
-  return res.status(StatusCodes.NO_CONTENT).send();
-};
+  return res.status(response.code).send({errors: response.errors});
+}
 
 const moveFile = async (req, res) => {
   let response = {
