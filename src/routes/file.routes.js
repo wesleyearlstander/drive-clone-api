@@ -12,13 +12,6 @@ const {
 /**
  * @swagger
  * tags:
- *   name: files
- *   description: Files Endpoints
- */
-
-/**
- * @swagger
- * tags:
  *   name: file
  *   description: File APIs
  */
@@ -94,7 +87,7 @@ fileRouter.post('/download', download);
  *            type: string
  *          fileName:
  *            type: string
- *     tags: [files]
+ *     tags: [file]
  *     responses:
  *       200:
  *         description: file renamed successfully
@@ -126,7 +119,7 @@ fileRouter.put('/move', [buildDrive], moveFile);
  *            type: string
  *          newName:
  *            type: string
- *     tags: [files]
+ *     tags: [file]
  *     responses:
  *       200:
  *         description: file renamed successfully
@@ -156,7 +149,7 @@ fileRouter.patch('/rename', [buildDrive], renameFile);
  *            type: string
  *          name:
  *            type: string
- *     tags: [files]
+ *     tags: [file]
  *     responses:
  *       200:
  *         description: file renamed successfully
