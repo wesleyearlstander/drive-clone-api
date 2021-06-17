@@ -1,19 +1,17 @@
 const { StatusCodes } = require('http-status-codes');
 const path = require('path');
-const fs = require('fs');
 const model = require('../models');
 const {
   dbExecute,
   uploadFile,
   downloadFile,
   deleteFile,
-  updateFileTreeForUser
+  updateFileTreeForUser,
 } = require('../services');
 
 const publicFolder = `${path.dirname(require.main.filename)}/public/`;
 
 const upload = async (req, res) => {
-
   let response = {
     ok: true,
     errors: [],
@@ -25,35 +23,35 @@ const upload = async (req, res) => {
   const tempName = Math.random().toString(36).substring(2) + fileName;
 
   startup_image.mv(`${publicFolder}${tempName}`, (err) => {
-
     if (err) {
       response.ok = false;
       response.errors.push({
-        message: err.message
+        message: err.message,
       });
     }
   });
 
   if (response.ok) {
-
     response = await dbExecute(uploadFile, [tempName, fileName]);
 
     if (!response.ok) {
-
-      return res.status(response.code).send({errors: response.errors});
+      return res
+        .status(response.code)
+        .send({ errors: response.errors });
     }
 
     response = req.drive.add(
       req.body.path,
       new model.File({
         name: fileName,
-        _id: response._id
+        _id: response._id,
       })
     );
 
     if (!response.ok) {
-
-      return res.status(response.code).send({errors: response.errors});
+      return res
+        .status(response.code)
+        .send({ errors: response.errors });
     }
 
     const mongoDoc = req.drive.format();
@@ -64,18 +62,18 @@ const upload = async (req, res) => {
     ]);
 
     if (!response.ok) {
-
-      return res.status(response.code).send({errors: response.errors});
+      return res
+        .status(response.code)
+        .send({ errors: response.errors });
     }
 
     return res.status(response.code).send();
   }
 
-  return res.status(response.code).send({errors: response.errors});
+  return res.status(response.code).send({ errors: response.errors });
 };
 
 const download = async (req, res) => {
-
   let response = {
     ok: false,
     errors: [],
@@ -87,20 +85,19 @@ const download = async (req, res) => {
 
   if (!fileId) {
     response.errors.push({
-      message: 'Request body is missing fileId'
+      message: 'Request body is missing fileId',
     });
   }
 
   if (!filePath) {
     response.errors.push({
-      message: 'Request body is missing filePath'
+      message: 'Request body is missing filePath',
     });
   }
 
   let dbRes;
 
   if (!response.errors.length) {
-
     dbRes = await dbExecute(downloadFile, [fileId]);
 
     response.code = dbRes.code;
@@ -108,23 +105,21 @@ const download = async (req, res) => {
     if (dbRes.ok) {
       response.ok = true;
     } else {
-
       response.errors.push({
-        message: dbRes.message
+        message: dbRes.message,
       });
     }
   }
 
   if (response.ok) {
-    res.status(response.code)
+    res.status(response.code);
     return res.download(`${publicFolder}${dbRes.fileName}`);
   } else {
     return res.status(response.code).send(response);
   }
-}
+};
 
 const deleteCallback = async (req, res) => {
-
   let response = {
     ok: true,
     errors: [],
@@ -137,29 +132,29 @@ const deleteCallback = async (req, res) => {
 
   if (!fileId) {
     response.errors.push({
-      message: 'Request body is missing fileId'
+      message: 'Request body is missing fileId',
     });
   }
 
   if (!path) {
     response.errors.push({
-      message: 'Request body is missing path'
+      message: 'Request body is missing path',
     });
   }
 
   if (!name) {
     response.errors.push({
-      message: 'Request body is missing name'
+      message: 'Request body is missing name',
     });
   }
 
   if (response.ok) {
-
     response = await dbExecute(deleteFile, [fileId]);
 
     if (!response.ok) {
-
-      return res.status(response.code).send({errors: response.errors});
+      return res
+        .status(response.code)
+        .send({ errors: response.errors });
     }
 
     response = req.drive.remove(
@@ -170,8 +165,9 @@ const deleteCallback = async (req, res) => {
     );
 
     if (!response.ok) {
-
-      return res.status(response.code).send({errors: response.errors});
+      return res
+        .status(response.code)
+        .send({ errors: response.errors });
     }
 
     const mongoDoc = req.drive.format();
@@ -182,14 +178,15 @@ const deleteCallback = async (req, res) => {
     ]);
 
     if (!response.ok) {
-
-      return res.status(response.code).send({errors: response.errors});
+      return res
+        .status(response.code)
+        .send({ errors: response.errors });
     }
 
     return res.status(response.code).send();
   }
 
-  return res.status(response.code).send({errors: response.errors});
+  return res.status(response.code).send({ errors: response.errors });
 };
 
 const renameFile = async (req, res) => {
@@ -239,27 +236,27 @@ const renameFile = async (req, res) => {
   // TODO: Remove any children file objects from db
 
   return res.status(StatusCodes.NO_CONTENT).send();
-}
+};
 
 const moveFile = async (req, res) => {
   if (!req.body.currentPath) {
     return res.status(400).send({
       code: 400,
-      message: 'Missing folder current path'
+      message: 'Missing folder current path',
     });
   }
 
   if (!req.body.newPath) {
     return res.status(400).send({
       code: 400,
-      message: 'Missing folder new path'
+      message: 'Missing folder new path',
     });
   }
 
   if (!req.body.fileName) {
     return res.status(400).send({
       code: 400,
-      message: 'Missing folder name'
+      message: 'Missing folder name',
     });
   }
 
@@ -267,13 +264,13 @@ const moveFile = async (req, res) => {
     req.body.currentPath,
     req.body.newPath,
     new model.File({
-      name: req.body.fileName
+      name: req.body.fileName,
     })
   );
 
   if (!response) {
     return res.status(404).send({
-      message: 'File or path did not exist'
+      message: 'File or path did not exist',
     });
   }
 
@@ -281,14 +278,14 @@ const moveFile = async (req, res) => {
 
   const updateFileTree = await dbExecute(updateFileTreeForUser, [
     req.oidc.user.sub,
-    mongoDoc
+    mongoDoc,
   ]);
 
   // TODO: check negative scenarios
 
   res.status = StatusCodes.NO_CONTENT;
   res.send();
-}
+};
 
 module.exports = {
   upload,

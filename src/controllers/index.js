@@ -11,6 +11,7 @@ const {
   renameFolder,
   moveFolder,
   removeFolder,
+  getChildren,
 } = require('./folder.controller');
 
 module.exports = {
@@ -23,4 +24,5 @@ module.exports = {
   renameFolder,
   moveFolder,
   removeFolder,
+  getChildren,
 };

@@ -192,6 +192,36 @@ class Folder extends DriveItem {
     return added;
   }
 
+  getChildren(path, driveItem) {
+    const paths = path.split('/');
+
+    return this.peformActionAtPath(
+      paths,
+      (item, driveItem) => {
+        const children = [];
+        const folderToList = item.iterator.getChild(driveItem);
+        if (!folderToList) {
+          return {
+            ok: false,
+            code: 404,
+            error: {
+              message: 'Requested folder does not exist',
+            },
+          };
+        }
+        folderToList.iterator.each((child) => {
+          children.push(child.format());
+        });
+        return {
+          ok: true,
+          code: 200,
+          children: children,
+        };
+      },
+      [driveItem]
+    );
+  }
+
   format() {
     const mongoDoc = {
       files: [],

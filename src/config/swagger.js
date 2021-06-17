@@ -5,9 +5,10 @@ const swaggerOptions = {
   swaggerDefinition: {
     swagger: '2.0',
     info: {
-      title: 'Library API',
+      title: 'Giggle Drove Clone',
       version: '1.0.0',
-      description: 'A simple Express Library API',
+      description:
+        'Giggle Drove is not Google Drive, it is significantly worse.',
     },
     basePath: '/',
     servers: [
