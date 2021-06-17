@@ -80,43 +80,46 @@ async function uploadFile(client, tempName, fileName) {
   };
 }
 
-async function downloadFile(fileId) {
-  const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@drive-clone-cluster.cuxyh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-  const client = new MongoClient(uri, { useUnifiedTopology: true });
-  let result = await dbExecute(findFileById, [fileId]).catch(
-    console.error
-  );
+async function downloadFile(client, fileId) {
 
-  let fileName, fileSize;
+  try {
 
-  if (result) {
-    fileName =
-      Math.random().toString(36).substring(2) + result.filename;
-    fileSize = result.length;
+    let result = await dbExecute(findFileById, [fileId]).catch(console.error);
 
-    client.connect(function (error, client) {
-      assert.ifError(error);
+    if (result) {
+      const fileName = Math.random().toString(36).substring(2) + result.filename;
 
       const db = client.db('drive-clone-db');
-
       const bucket = new GridFSBucket(db);
 
-      bucket
-        .openDownloadStream(new ObjectID(fileId))
-        .pipe(fs.createWriteStream(`${publicFolder}${fileName}`))
-        .on('error', function (error) {
-          assert.ifError(error);
-        })
-        .on('finish', function () {
-          console.log('done!');
-        });
-    });
-  }
+      try {
+        const writeStream = fs.createWriteStream(`${publicFolder}${fileName}`);
+        const uploadStream = bucket.openDownloadStream(new ObjectID(fileId));
 
-  return {
-    fileName,
-    fileSize,
-  };
+        await util.promisify(stream.pipeline)(uploadStream, writeStream);
+
+        return {
+          ok: true,
+          code: 204,
+          fileName,
+        };
+      } catch (err) {
+
+        return {
+          ok: false,
+          code: 400,
+          message: err.message
+        };
+      }
+    }
+  } catch (err) {
+
+    return {
+      ok: false,
+      code: 400,
+      message: err.message
+    };
+  }
 }
 
 async function findUserTreeById(client, _id) {

@@ -27,7 +27,7 @@ const upload = async (req, res) => {
   });
 
   if (!response.errors.length) {
-    let dbRes = await dbExecute(uploadFile, [tempName, fileName]);
+    const dbRes = await dbExecute(uploadFile, [tempName, fileName]);
 
     response.code = dbRes.code;
 
@@ -49,48 +49,51 @@ const upload = async (req, res) => {
 };
 
 async function download(req, res) {
+
+  let response = {
+    ok: false,
+    errors: [],
+    code: 400,
+  };
+
   const fileId = req.body?.fileId;
+  const filePath = req.body?.filePath;
 
   if (!fileId) {
-    return res.status(400).send({
-      code: 400,
-      message: 'Missing fileId',
+    response.errors.push({
+      message: 'Request body is missing fileId'
     });
   }
 
-  const dbRes = await downloadFile(fileId);
-
-  if (dbRes) {
-    let noFile = true;
-    while (noFile) {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        noFile =
-          fs.statSync(`${publicFolder}${dbRes.fileName}`).size / 1024;
-        break;
-      } catch (e) {
-        if (e.code === 'ENOENT') {
-        } else {
-          console.log(e);
-          break;
-        }
-      }
-    }
-    let currentFileSizeInKB = fs.statSync(
-      `${publicFolder}${dbRes.fileName}`
-    ).size;
-    while (currentFileSizeInKB < dbRes.fileSize) {
-      currentFileSizeInKB = fs.statSync(
-        `${publicFolder}${dbRes.fileName}`
-      ).size;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-    res.download(`${publicFolder}${dbRes.fileName}`);
-  } else {
-    res.status = StatusCodes.BAD_REQUEST;
-    res.json({
-      message: 'Error: Download Failed',
+  if (!filePath) {
+    response.errors.push({
+      message: 'Request body is missing filePath'
     });
+  }
+
+  let dbRes;
+
+  if (!response.errors.length) {
+
+    dbRes = await dbExecute(downloadFile, [fileId]);
+
+    response.code = dbRes.code;
+
+    if (dbRes.ok) {
+      response.ok = true;
+    } else {
+
+      response.errors.push({
+        message: dbRes.message
+      });
+    }
+  }
+
+  if (response.ok) {
+    res.status(response.code)
+    return res.download(`${publicFolder}${dbRes.fileName}`);
+  } else {
+    return res.status(response.code).send(response);
   }
 }
 
@@ -118,7 +121,7 @@ const deleteCallback = async (req, res) => {
   }
 
   if (!response.errors.length) {
-    let dbRes = await dbExecute(deleteFile, [fileId]);
+    const dbRes = await dbExecute(deleteFile, [fileId]);
 
     response.code = dbRes.code;
 
