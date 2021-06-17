@@ -1,5 +1,5 @@
 const { findUserTreeById } = require('../controllers/directory.controller');
-const dbExecute = require('../config/database');
+const { dbExecute } = require('../config/database');
 const { Folder } = require('../models');
 
 const buildDrive = async (req, res, next) => {

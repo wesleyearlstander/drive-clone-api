@@ -5,6 +5,13 @@ const buildDrive = require('../middleware/buildDrive');
 
 /**
  * @swagger
+ * tags:
+ *   name: folder
+ *   description: Folder APIs
+ */
+
+/**
+ * @swagger
  * definitions:
  *   Folder:
  *     title: Folder
@@ -134,6 +141,7 @@ const buildDrive = require('../middleware/buildDrive');
  *       required: true
  *       schema:
  *         $ref: '#/definitions/V1DirectoryRequest'
+ *     tags: [folder]
  *     responses:
  *       '204':
  *         description: Folder was created
@@ -176,6 +184,7 @@ DirectoryRouter.post('/', [buildDrive], folderController.make);
  *       required: true
  *       schema:
  *         $ref: '#/definitions/V1DirectoryRequest'
+ *     tags: [folder]
  *     responses:
  *       '204':
  *         description: Folder was deleted
@@ -218,6 +227,7 @@ DirectoryRouter.delete('/', [buildDrive], folderController.remove);
  *       required: true
  *       schema:
  *         $ref: '#/definitions/V1DirectoryRequestabc'
+ *     tags: [folder]
  *     responses:
  *       '204':
  *         description: Folder was moved
@@ -260,6 +270,7 @@ DirectoryRouter.put('/', [buildDrive], folderController.move);
  *       required: true
  *       schema:
  *         $ref: '#/definitions/V1DirectoryRequestdef'
+ *     tags: [folder]
  *     responses:
  *       '204':
  *         description: Folder was moved
