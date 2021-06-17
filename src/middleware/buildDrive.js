@@ -1,9 +1,10 @@
-const { findUserTreeById } = require('../controllers/directory.controller');
-const { dbExecute } = require('../config/database');
+const { findUserTreeById, dbExecute } = require('../services');
 const { Folder } = require('../models');
 
 const buildDrive = async (req, res, next) => {
-  const fileTree = await dbExecute(findUserTreeById, [req.oidc.user.sub]);
+  const fileTree = await dbExecute(findUserTreeById, [
+    req.oidc.user.sub,
+  ]);
 
   const userDrive = new Folder(fileTree.module);
 
