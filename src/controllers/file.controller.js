@@ -7,7 +7,7 @@ const {
   downloadFile,
   deleteFile,
   renameFileById,
-  updateFileTreeForUser
+  updateFileTreeForUser,
 } = require('../services');
 
 const publicFolder = `${path.dirname(require.main.filename)}/public/`;
@@ -218,66 +218,68 @@ const deleteCallback = async (req, res) => {
 };
 
 const renameFile = async (req, res) => {
-
   let response = {
     ok: true,
     errors: [],
     code: 400,
   };
 
-  const currentName = req.body?.currentName;
+  const name = req.body?.currentName;
   const newName = req.body?.newName;
   const path = req.body?.path;
 
   if (!path) {
     response.ok = false;
     response.errors.push({
-      message: 'Request body is missing path'
+      message: 'Request body is missing path',
     });
   }
 
-  if (!currentName) {
+  if (!name) {
     response.ok = false;
     response.errors.push({
-      message: 'Request body is missing currentName'
+      message: 'Request body is missing currentName',
     });
   }
 
   if (!newName) {
     response.ok = false;
     response.errors.push({
-      message: 'Request body is missing newName'
+      message: 'Request body is missing newName',
     });
   }
 
   if (response.ok) {
-
     response = req.drive.getChild(
       path,
       new model.File({
-        currentName,
+        name,
       })
     );
 
     if (!response.ok) {
-
-      return res.status(response.code).send({errors: response.errors});
+      return res
+        .status(response.code)
+        .send({ errors: response.error });
     }
     const fileId = response.id;
 
     response = req.drive.rename(
       req.body.path,
-      req.body.newName,
       new model.File({
-        name: req.body.currentName,
+        name: req.body.newName,
+      }),
+      new model.File({
+        name,
       })
     );
 
     response = await dbExecute(renameFileById, [fileId, newName]);
 
     if (!response.ok) {
-
-      return res.status(response.code).send({errors: response.errors});
+      return res
+        .status(response.code)
+        .send({ errors: response.errors });
     }
 
     const mongoDoc = req.drive.format();
@@ -288,15 +290,16 @@ const renameFile = async (req, res) => {
     ]);
 
     if (!response.ok) {
-
-      return res.status(response.code).send({errors: response.errors});
+      return res
+        .status(response.code)
+        .send({ errors: response.errors });
     }
 
     return res.status(response.code).send();
   }
 
-  return res.status(response.code).send({errors: response.errors});
-}
+  return res.status(response.code).send({ errors: response.errors });
+};
 
 const moveFile = async (req, res) => {
   let response = {
