@@ -170,6 +170,35 @@ class Folder extends DriveItem {
 
     return mongoDoc;
   }
+
+  getChild(path, driveItem) {
+    const paths = path.split('/');
+
+    return this.peformActionAtPath(
+      paths,
+      (item, driveItem) => {
+        const child = item.iterator.getChild(driveItem);
+        if (child) {
+
+          return {
+            ok: true,
+            code: 201,
+            id: child._id
+          };
+        }
+
+        return {
+          ok: false,
+          error: {
+            message:
+              'Item does not exist in path',
+          },
+          code: 404,
+        };
+      },
+      [driveItem]
+    );
+  }
 }
 
 module.exports = Folder;
