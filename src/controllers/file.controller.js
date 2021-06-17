@@ -1,7 +1,7 @@
 const { StatusCodes } = require('http-status-codes');
 const path = require('path');
 const fs = require('fs');
-const { uploadFile, downloadFile } = require('../services');
+const { uploadFile, downloadFile, deleteFile } = require('../services');
 
 const publicDir = `${path.dirname(require.main.filename)}/public/`;
 
@@ -75,7 +75,27 @@ async function download(req, res) {
   }
 }
 
+const deleteCallback = (req, res) => {
+
+  const fileId = req.body?.fileId;
+
+  if (!fileId) {
+    return res.status(400).send({
+      code: 400,
+      message: 'Missing fileId',
+    });
+  }
+
+  deleteFile(fileId);
+
+  return res.status(200).send({
+    code: 200,
+    message: 'File Deleted',
+  });
+};
+
 module.exports = {
   upload,
   download,
+  deleteCallback
 };

@@ -1,4 +1,4 @@
-const { upload, download } = require('./file.controller');
+const { upload, download, deleteCallback } = require('./file.controller');
 const {
   makeFolder,
   renameFolder,
@@ -9,6 +9,7 @@ const {
 module.exports = {
   upload,
   download,
+  deleteCallback,
   makeFolder,
   renameFolder,
   moveFolder,

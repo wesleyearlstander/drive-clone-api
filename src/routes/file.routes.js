@@ -1,6 +1,6 @@
 const express = require('express');
 const fileRouter = express.Router();
-const { upload, download } = require('../controllers');
+const { upload, download, deleteCallback } = require('../controllers');
 const { StatusCodes } = require('http-status-codes');
 
 /**
@@ -42,8 +42,8 @@ fileRouter.post('/upload', upload);
  *       - application/json
  *     parameters:
  *       - in: body
- *         name: user
- *         description: The user to create.
+ *         name: fileSpecifier
+ *         description: specifies fileId at filePath to be downloaded
  *         schema:
  *           type: object
  *           properties:
@@ -102,18 +102,32 @@ fileRouter.patch('/rename', (req, res) => {
   });
 });
 
-fileRouter.delete('/delete', (req, res) => {
-  const file = req.query.file;
-
-  if (!file) {
-    res.status = StatusCodes.NOT_FOUND;
-    res.json({
-      message: `File: ${file} not found`,
-    });
-  }
-
-  res.status = StatusCodes.NO_CONTENT;
-  res.send();
-});
+/**
+ * @swagger
+ * /v1/files/delete:
+ *   delete:
+ *     summary: deletes specified file
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: fileSpecifier
+ *         description: specifies fileId at filePath to be deleted
+ *         schema:
+ *           type: object
+ *           properties:
+ *             fileId:
+ *               type: string
+ *             filePath:
+ *               type: string
+ *     tags: [file]
+ *     responses:
+ *       200:
+ *         description: delete success
+ *       500:
+ *         description: delete failed
+ *
+ */
+fileRouter.delete('/delete', deleteCallback);
 
 module.exports = fileRouter;
