@@ -46,7 +46,11 @@ class Iterator {
   }
 
   each(callback) {
-    for (let item = this.first(); this.hasNext(); item = this.next()) {
+    for (
+      let item = this.first();
+      this.hasNext();
+      item = this.next()
+    ) {
       if (typeof callback === 'function') {
         callback(item);
       }
