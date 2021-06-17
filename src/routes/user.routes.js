@@ -11,7 +11,7 @@ const { StatusCodes } = require('http-status-codes');
 
 /**
  * @swagger
- * /v1/user/profile:
+ * /v1/users/profile:
  *   get:
  *     summary: returns user profile
  *     tags: [user]

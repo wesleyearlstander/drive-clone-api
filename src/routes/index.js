@@ -1,9 +1,9 @@
-const DirectoryRouter = require('./directory.routes');
-const FileRouter = require('./file.routes');
-const UserRouter = require('./user.routes');
+const folderRouter = require('./folder.routes');
+const fileRouter = require('./file.routes');
+const userRouter = require('./user.routes');
 
 module.exports = {
-  DirectoryRouter,
-  FileRouter,
-  UserRouter,
+  folderRouter,
+  fileRouter,
+  userRouter,
 };
