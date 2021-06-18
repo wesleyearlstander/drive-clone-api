@@ -1,4 +1,3 @@
-const { StatusCodes } = require('http-status-codes');
 const path = require('path');
 const model = require('../models');
 const {

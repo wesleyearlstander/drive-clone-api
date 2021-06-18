@@ -1,6 +1,5 @@
 const swaggerJsDoc = require('swagger-jsdoc');
 
-// TODO: Update info object
 const swaggerOptions = {
   swaggerDefinition: {
     swagger: '2.0',
