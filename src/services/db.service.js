@@ -1,5 +1,4 @@
 const dotenv = require('dotenv');
-const assert = require('assert');
 const util = require('util');
 const stream = require('stream');
 const fs = require('fs');
@@ -42,17 +41,16 @@ async function deleteFile(client, fileId) {
   try {
     await bucket.delete(new ObjectID(fileId));
   } catch (err) {
-
     return {
       ok: false,
       code: 400,
-      errors: err.message
+      errors: err.message,
     };
   }
 
   return {
     ok: true,
-    code: 204
+    code: 204,
   };
 }
 
@@ -63,17 +61,16 @@ async function renameFileById(client, fileId, newFileName) {
   try {
     await bucket.rename(new ObjectID(fileId), newFileName);
   } catch (err) {
-
     return {
       ok: false,
       code: 400,
-      errors: err.message
+      errors: err.message,
     };
   }
 
   return {
     ok: true,
-    code: 204
+    code: 204,
   };
 }
 
@@ -82,43 +79,55 @@ async function uploadFile(client, tempName, fileName) {
   const bucket = new GridFSBucket(db);
 
   try {
-    const readStream = fs.createReadStream(`${publicFolder}${tempName}`);
+    const readStream = fs.createReadStream(
+      `${publicFolder}${tempName}`
+    );
     const uploadStream = bucket.openUploadStream(fileName);
 
-    let res = await util.promisify(stream.pipeline)(readStream, uploadStream);
+    let res = await util.promisify(stream.pipeline)(
+      readStream,
+      uploadStream
+    );
 
     return {
       ok: true,
       code: 204,
-      _id: uploadStream.id
+      _id: uploadStream.id,
     };
   } catch (err) {
-
     return {
       ok: false,
       code: 401,
-      errors: err.message
+      errors: err.message,
     };
   }
 }
 
 async function downloadFile(client, fileId) {
-
   try {
-
-    let result = await dbExecute(findFileById, [fileId]).catch(console.error);
+    let result = await dbExecute(findFileById, [fileId]).catch(
+      console.error
+    );
 
     if (result) {
-      const fileName = Math.random().toString(36).substring(2) + result.filename;
+      const fileName =
+        Math.random().toString(36).substring(2) + result.filename;
 
       const db = client.db('drive-clone-db');
       const bucket = new GridFSBucket(db);
 
       try {
-        const writeStream = fs.createWriteStream(`${publicFolder}${fileName}`);
-        const uploadStream = bucket.openDownloadStream(new ObjectID(fileId));
+        const writeStream = fs.createWriteStream(
+          `${publicFolder}${fileName}`
+        );
+        const uploadStream = bucket.openDownloadStream(
+          new ObjectID(fileId)
+        );
 
-        await util.promisify(stream.pipeline)(uploadStream, writeStream);
+        await util.promisify(stream.pipeline)(
+          uploadStream,
+          writeStream
+        );
 
         return {
           ok: true,
@@ -126,20 +135,18 @@ async function downloadFile(client, fileId) {
           fileName,
         };
       } catch (err) {
-
         return {
           ok: false,
           code: 400,
-          errors: err.message
+          errors: err.message,
         };
       }
     }
   } catch (err) {
-
     return {
       ok: false,
       code: 400,
-      errors: err.message
+      errors: err.message,
     };
   }
 }
